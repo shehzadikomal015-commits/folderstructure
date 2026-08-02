@@ -1,0 +1,8 @@
+export default function ProductsPage() {
+  return (
+    <div className="p-8">
+      <h1 className="text-3xl font-semibold text-zinc-900 dark:text-zinc-50">Products</h1>
+      <p className="mt-2 text-zinc-600 dark:text-zinc-400">Manage your product catalog.</p>
+    </div>
+  );
+}
