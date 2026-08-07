@@ -1,24 +1,57 @@
+"use client";
+
+import { useState } from "react";
+import { LandingNavbar } from "@/components/landing/Navbar";
+import { HeroSection } from "@/components/landing/HeroSection";
+import { ProblemSection } from "@/components/landing/ProblemSection";
+import { HowItWorks } from "@/components/landing/HowItWorks";
+import { FeaturesGrid } from "@/components/landing/FeaturesGrid";
+import { DashboardPreview } from "@/components/landing/DashboardPreview";
+import { Testimonials } from "@/components/landing/Testimonials";
+import { FAQ } from "@/components/landing/FAQ";
+import { CTASection } from "@/components/landing/CTASection";
+import { Footer } from "@/components/landing/Footer";
+import { LoginModal } from "@/components/landing/LoginModal";
+import { SignupModal } from "@/components/landing/SignupModal";
+
 export default function Home() {
+  const [loginOpen, setLoginOpen] = useState(false);
+  const [signupOpen, setSignupOpen] = useState(false);
+
+  const openLogin = () => {
+    setSignupOpen(false);
+    setLoginOpen(true);
+  };
+
+  const openSignup = () => {
+    setLoginOpen(false);
+    setSignupOpen(true);
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-black">
-      <div className="text-center">
-        <h1 className="text-4xl font-semibold text-zinc-900 dark:text-zinc-50">Welcome</h1>
-        <p className="mt-4 text-zinc-600 dark:text-zinc-400">Get started by logging in or visiting the dashboard.</p>
-        <div className="mt-8 flex gap-4 justify-center">
-          <a
-            href="/login"
-            className="rounded-md bg-zinc-900 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200"
-          >
-            Login
-          </a>
-          <a
-            href="/dashboard"
-            className="rounded-md border border-zinc-300 px-6 py-3 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
-          >
-            Dashboard
-          </a>
-        </div>
-      </div>
-    </div>
+    <>
+      <LandingNavbar onOpenLogin={openLogin} onOpenSignup={openSignup} />
+      <main>
+        <HeroSection onOpenLogin={openLogin} onOpenSignup={openSignup} />
+        <ProblemSection />
+        <HowItWorks />
+        <FeaturesGrid />
+        <DashboardPreview />
+        <Testimonials />
+        <FAQ />
+        <CTASection onOpenLogin={openLogin} onOpenSignup={openSignup} />
+      </main>
+      <Footer />
+      <LoginModal
+        open={loginOpen}
+        onClose={() => setLoginOpen(false)}
+        onSwitchToSignup={openSignup}
+      />
+      <SignupModal
+        open={signupOpen}
+        onClose={() => setSignupOpen(false)}
+        onSwitchToLogin={openLogin}
+      />
+    </>
   );
 }
