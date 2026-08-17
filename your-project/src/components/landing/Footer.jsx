@@ -6,9 +6,9 @@ import { Globe, ExternalLink, Mail } from "lucide-react";
 import { Logo } from "./Logo";
 
 const footerLinks = {
-  Product: ["Features", "Pricing", "Integrations", "Changelog"],
-  Company: ["About", "Blog", "Careers", "Contact"],
-  Resources: ["Documentation", "Help Center", "API", "Status"],
+  Product: [{ name: "Features", href: "/#features" }, { name: "Pricing", href: "/#features" }, { name: "Integrations", href: "/#features" }, { name: "Changelog", href: "/#features" }],
+  Company: [{ name: "About", href: "/#features" }, { name: "Blog", href: "/#features" }, { name: "Careers", href: "/#features" }, { name: "Contact", href: "/#features" }],
+  Resources: [{ name: "Documentation", href: "/#features" }, { name: "Help Center", href: "/#features" }, { name: "API", href: "/#features" }, { name: "Status", href: "/#features" }],
 };
 
 export function Footer() {
@@ -42,13 +42,13 @@ export function Footer() {
               </h4>
               <ul className="space-y-3">
                 {links.map((item) => (
-                  <li key={item}>
-                    <a
-                      href="#"
+                  <li key={item.name}>
+                    <Link
+                      href={item.href}
                       className="text-sm text-gray-600 hover:text-primary-light transition-colors duration-300"
                     >
-                      {item}
-                    </a>
+                      {item.name}
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -58,20 +58,22 @@ export function Footer() {
 
          <div className="mt-16 pt-8 border-t border-gray-200 flex flex-col md:flex-row items-center justify-between gap-6">
           <p className="text-sm text-gray-500">
-            Â© 2025 RevenueAI. All rights reserved.
+            © 2025 RevenueAI. All rights reserved.
           </p>
           <div className="flex items-center gap-6">
             {[
-              { icon: Globe, label: "Website" },
-              { icon: ExternalLink, label: "LinkedIn" },
-              { icon: Mail, label: "Email" },
-            ].map(({ icon: Icon, label }) => (
+              { icon: Globe, label: "Website", href: "/" },
+              { icon: ExternalLink, label: "LinkedIn", href: "https://linkedin.com" },
+              { icon: Mail, label: "Email", href: "mailto:hello@revenueai.com" },
+            ].map(({ icon: Icon, label, href }) => (
               <motion.a
                 key={label}
-                href="#"
-                whileHover={{ scale: 1.15, color: "#7C3AED" }}
+                href={href}
+                whileHover={{ scale: 1.15, color: "#E11D48" }}
                  className="text-gray-500 hover:text-primary-light transition-all duration-300"
                 aria-label={label}
+                target={href.startsWith("http") ? "_blank" : undefined}
+                rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
               >
                 <Icon className="h-5 w-5" />
               </motion.a>

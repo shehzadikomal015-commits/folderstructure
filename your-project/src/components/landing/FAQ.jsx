@@ -1,8 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, ChevronUp } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { ChevronDown } from "lucide-react";
 
 const faqs = [
   {
@@ -53,6 +53,12 @@ const item = {
 };
 
 export function FAQ() {
+  const [openIndex, setOpenIndex] = useState(null);
+
+  function toggle(index) {
+    setOpenIndex(openIndex === index ? null : index);
+  }
+
   return (
     <section id="faq" className="py-24 bg-background relative overflow-hidden">
       <div className="absolute inset-0 -z-10">
@@ -91,21 +97,38 @@ export function FAQ() {
               variants={item}
               className="bg-white/50 rounded-2xl border border-gray-200 overflow-hidden hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300"
             >
-              <details className="group">
-                <summary className="w-full flex items-center justify-between p-6 cursor-pointer list-none">
-                  <span className="font-semibold text-foreground text-base pr-4">
-                    {faq.question}
-                  </span>
-                  <span className="relative flex-shrink-0 ml-2">
-                    <ChevronDown className="h-5 w-5 text-muted transition-transform duration-300 group-open:rotate-180" />
-                  </span>
-                </summary>
-                <div className="px-6 pb-6">
-                  <p className="text-sm text-muted leading-relaxed">
-                    {faq.answer}
-                  </p>
-                </div>
-              </details>
+              <button
+                onClick={() => toggle(idx)}
+                className="w-full flex items-center justify-between p-6 cursor-pointer text-left"
+              >
+                <span className="font-semibold text-foreground text-base pr-4">
+                  {faq.question}
+                </span>
+                <motion.span
+                  animate={{ rotate: openIndex === idx ? 180 : 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="relative flex-shrink-0 ml-2"
+                >
+                  <ChevronDown className="h-5 w-5 text-muted" />
+                </motion.span>
+              </button>
+              <AnimatePresence initial={false}>
+                {openIndex === idx && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                    className="overflow-hidden"
+                  >
+                    <div className="px-6 pb-6">
+                      <p className="text-sm text-muted leading-relaxed">
+                        {faq.answer}
+                      </p>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </motion.div>
           ))}
         </motion.div>

@@ -15,20 +15,9 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Check current Supabase user
   useEffect(() => {
-    const getUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      setUser(user);
-      setLoading(false);
-    };
-
     getUser();
 
-    // Listen for login/signup/logout
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -40,23 +29,36 @@ export function AuthProvider({ children }) {
     };
   }, []);
 
-  // LOGIN
-  const login = async (email, password) => {
+  async function getUser() {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    setUser(user);
+  }
+
+  async function login(email, password) {
+    setLoading(true);
+
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
+    setLoading(false);
+
     if (error) {
-      throw error;
+      throw new Error(error.message);
     }
 
     setUser(data.user);
-    return data.user;
-  };
 
-  // SIGNUP
-  const signup = async (name, email, password) => {
+    return data.user;
+  }
+
+  async function signup(name, email, password) {
+    setLoading(true);
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -68,24 +70,21 @@ export function AuthProvider({ children }) {
     });
 
     if (error) {
-      throw error;
+      setLoading(false);
+      throw new Error(error.message);
     }
 
     setUser(data.user);
 
+    setLoading(false);
+
     return data.user;
-  };
+  }
 
-  // LOGOUT
-  const logout = async () => {
-    const { error } = await supabase.auth.signOut();
-
-    if (error) {
-      throw error;
-    }
-
+  async function logout() {
+    await supabase.auth.signOut();
     setUser(null);
-  };
+  }
 
   return (
     <AuthContext.Provider

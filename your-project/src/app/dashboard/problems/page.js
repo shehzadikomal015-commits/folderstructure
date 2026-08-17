@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { motion } from "framer-motion";
 import {
   Search,
   SlidersHorizontal,
@@ -103,8 +104,18 @@ export default function ProblemsPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="max-w-7xl mx-auto space-y-8"
+    >
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+      >
         <div>
           <h1 className="text-3xl font-bold text-foreground tracking-tight">
             Problems
@@ -127,9 +138,14 @@ export default function ProblemsPage() {
             Refresh
           </Button>
         </div>
-      </div>
+      </motion.div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+      >
         {kpiStats.map((stat) => (
           <StatsCard
             key={stat.title}
@@ -140,9 +156,15 @@ export default function ProblemsPage() {
             icon={stat.icon}
           />
         ))}
-      </div>
+      </motion.div>
 
-      <div className="bg-white rounded-2xl border border-border p-6">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5 }}
+        className="bg-white rounded-2xl border border-border p-6"
+      >
         <SectionHeader
           title="All Problems"
           subtitle="Issues detected across your store"
@@ -175,8 +197,16 @@ export default function ProblemsPage() {
 
         <div className="grid sm:grid-cols-2 gap-4">
           {filteredProblems.length > 0 ? (
-            filteredProblems.map((problem) => (
-              <ProblemCard key={problem.id} problem={problem} />
+            filteredProblems.map((problem, idx) => (
+              <motion.div
+                key={problem.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.3, delay: idx * 0.05 }}
+              >
+                <ProblemCard problem={problem} />
+              </motion.div>
             ))
           ) : (
             <div className="col-span-2 flex flex-col items-center justify-center py-16 px-4">
@@ -189,17 +219,30 @@ export default function ProblemsPage() {
               <p className="text-sm text-muted mb-6 max-w-sm text-center">
                 We could not find any problems matching your search criteria. Try adjusting your filters.
               </p>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" onClick={() => { setSearchQuery(""); setSelectedSeverity("All"); }}>
                 Clear Filters
               </Button>
             </div>
           )}
         </div>
-      </div>
+      </motion.div>
 
-      <AIRecommendationCard recommendation={aiInsight} />
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+      >
+        <AIRecommendationCard recommendation={aiInsight} />
+      </motion.div>
 
-      <div className="grid lg:grid-cols-3 gap-8">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+        className="grid lg:grid-cols-3 gap-8"
+      >
         <div className="lg:col-span-2 bg-white rounded-2xl border border-border p-6">
           <SectionHeader
             title="Revenue Leaks"
@@ -239,7 +282,7 @@ export default function ProblemsPage() {
           />
           <Timeline items={activities} />
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

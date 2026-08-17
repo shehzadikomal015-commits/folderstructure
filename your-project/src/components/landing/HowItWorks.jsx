@@ -93,8 +93,8 @@ export function HowItWorks() {
                   >
                     <defs>
                       <linearGradient id="connectorGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stopColor="#7C3AED" stopOpacity="0.3" />
-                        <stop offset="100%" stopColor="#06B6D4" stopOpacity="0.3" />
+                        <stop offset="0%" stopColor="#E11D48" stopOpacity="0.3" />
+                        <stop offset="100%" stopColor="#475569" stopOpacity="0.3" />
                       </linearGradient>
                     </defs>
                     <path

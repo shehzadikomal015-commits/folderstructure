@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { motion } from "framer-motion";
 import {
   Search,
   SlidersHorizontal,
@@ -91,8 +92,18 @@ export default function ProductsPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="max-w-7xl mx-auto space-y-8"
+    >
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+      >
         <div>
           <h1 className="text-3xl font-bold text-foreground tracking-tight">
             Products
@@ -115,9 +126,14 @@ export default function ProductsPage() {
             Refresh
           </Button>
         </div>
-      </div>
+      </motion.div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+      >
         {kpiStats.map((stat) => (
           <StatsCard
             key={stat.title}
@@ -128,9 +144,15 @@ export default function ProductsPage() {
             icon={stat.icon}
           />
         ))}
-      </div>
+      </motion.div>
 
-      <div className="bg-white rounded-2xl border border-border p-6">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5 }}
+        className="bg-white rounded-2xl border border-border p-6"
+      >
         <SectionHeader
           title="Top Products"
           subtitle="Best performing products by revenue"
@@ -187,9 +209,13 @@ export default function ProductsPage() {
             </thead>
             <tbody className="divide-y divide-border">
               {filteredProducts.length > 0 ? (
-                filteredProducts.map((product) => (
-                  <tr
+                filteredProducts.map((product, idx) => (
+                  <motion.tr
                     key={product.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.3, delay: idx * 0.05 }}
                     className="hover:bg-gray-50 transition-colors duration-200"
                   >
                     <td className="px-6 py-4">
@@ -219,7 +245,7 @@ export default function ProductsPage() {
                         <MoreVertical className="h-4 w-4" />
                       </button>
                     </td>
-                  </tr>
+                  </motion.tr>
                 ))
               ) : (
                 <tr>
@@ -234,9 +260,9 @@ export default function ProductsPage() {
                       <p className="text-sm text-muted mb-6 max-w-sm text-center">
                         We could not find any products matching your search criteria. Try adjusting your filters.
                       </p>
-                      <Button variant="outline" size="sm">
-                        Clear Filters
-                      </Button>
+                       <Button variant="outline" size="sm" onClick={() => { setSearchQuery(""); setSelectedCategory("All"); }}>
+                         Clear Filters
+                       </Button>
                     </div>
                   </td>
                 </tr>
@@ -244,11 +270,24 @@ export default function ProductsPage() {
             </tbody>
           </table>
         </div>
-      </div>
+      </motion.div>
 
-      <AIRecommendationCard recommendation={aiInsight} />
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+      >
+        <AIRecommendationCard recommendation={aiInsight} />
+      </motion.div>
 
-      <div className="grid lg:grid-cols-3 gap-8">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+        className="grid lg:grid-cols-3 gap-8"
+      >
         <div className="lg:col-span-2 bg-white rounded-2xl border border-border p-6">
           <SectionHeader
             title="Revenue by Channel"
@@ -294,7 +333,7 @@ export default function ProductsPage() {
           />
           <Timeline items={activities} />
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

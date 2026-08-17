@@ -63,66 +63,113 @@ export default function SignupPage() {
         <div className="bg-white/90 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white/20 p-8 sm:p-10 relative overflow-hidden">
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-secondary to-primary" />
 
-          <div className="flex flex-col items-center mb-10">
-            <Link href="/" className="mb-6">
-              <Logo className="h-16 w-16" />
-            </Link>
-            <h1 className="text-3xl font-extrabold text-foreground tracking-tight">
-              Create your account
-            </h1>
-            <p className="text-sm text-muted mt-2">
-              Start recovering lost revenue today
-            </p>
-          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="flex flex-col items-center mb-10"
+          >
+            <motion.div
+              whileHover={{ scale: 1.05, rotate: 5 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
+              <Link href="/" className="mb-6">
+                <Logo className="h-16 w-16" />
+              </Link>
+            </motion.div>
+            <h1 className="text-3xl font-extrabold text-foreground tracking-tight">Create your account</h1>
+            <p className="text-sm text-muted mt-2">Start recovering lost revenue today</p>
+          </motion.div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <motion.form
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            onSubmit={handleSubmit}
+            className="space-y-5"
+          >
             {error && (
               <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, y: -10, height: 0 }}
+                animate={{ opacity: 1, y: 0, height: "auto" }}
                 className="p-3 rounded-xl bg-danger/10 border border-danger/20"
               >
                 <p className="text-sm text-danger">{error}</p>
               </motion.div>
             )}
-            <Input
-              label="Full Name"
-              type="text"
-              placeholder="John Doe"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
-            <Input
-              label="Email"
-              type="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-            <Input
-              label="Password"
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-            <Input
-              label="Confirm Password"
-              type="password"
-              placeholder="••••••••"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-            />
-            <Button type="submit" className="w-full" size="lg" loading={loading}>
-              Create Account
-            </Button>
-          </form>
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.4, delay: 0.35 }}
+            >
+              <Input
+                label="Full Name"
+                type="text"
+                placeholder="John Doe"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.4, delay: 0.4 }}
+            >
+              <Input
+                label="Email"
+                type="email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.4, delay: 0.45 }}
+            >
+              <Input
+                label="Password"
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.4, delay: 0.5 }}
+            >
+              <Input
+                label="Confirm Password"
+                type="password"
+                placeholder="••••••••"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+              />
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.55 }}
+            >
+              <Button type="submit" className="w-full" size="lg" loading={loading}>
+                Create Account
+              </Button>
+            </motion.div>
+          </motion.form>
 
-          <p className="text-center text-sm text-muted mt-8">
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.4, delay: 0.6 }}
+            className="text-center text-sm text-muted mt-8"
+          >
             Already have an account?{" "}
             <Link
               href="/login"
@@ -130,7 +177,7 @@ export default function SignupPage() {
             >
               Sign in
             </Link>
-          </p>
+          </motion.p>
         </div>
       </motion.div>
     </div>

@@ -3,6 +3,7 @@
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { motion } from "framer-motion";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { ProblemCard } from "@/components/dashboard/ProblemCard";
 import { AIRecommendationCard } from "@/components/dashboard/AIRecommendationCard";
@@ -42,18 +43,37 @@ export default function DashboardPage() {
 
   if (!user) return null;
 
+  const displayName =
+    user.user_metadata?.name ||
+    user.email?.split("@")[0] ||
+    "there";
+
   return (
-    <div className="max-w-7xl mx-auto space-y-8">
-      <div>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="max-w-7xl mx-auto space-y-8"
+    >
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
         <h1 className="text-3xl font-extrabold text-foreground tracking-tight">
-          Welcome back
+          Welcome back, {displayName}
         </h1>
         <p className="text-muted mt-2 text-base">
           Here&apos;s what&apos;s happening with your store today.
         </p>
-      </div>
+      </motion.div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+      >
         <StatsCard
           title="Revenue"
           value="£24,500"
@@ -82,31 +102,61 @@ export default function DashboardPage() {
           trend={kpiData.conversion.trend}
           icon={TrendingUp}
         />
-      </div>
+      </motion.div>
 
-      <div className="grid lg:grid-cols-3 gap-8">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+        className="grid lg:grid-cols-3 gap-8"
+      >
         <div className="lg:col-span-2 space-y-6">
-          <div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
             <SectionHeader
               title="Problems Detected"
               subtitle="Issues that need your attention"
               action={
-                <Button variant="ghost" size="sm">
+                <Button variant="ghost" size="sm" onClick={() => router.push("/dashboard/problems")}>
                   View All
                 </Button>
               }
             />
             <div className="grid sm:grid-cols-2 gap-4">
-              {problems.map((problem) => (
-                <ProblemCard key={problem.id} problem={problem} />
+              {problems.map((problem, idx) => (
+                <motion.div
+                  key={problem.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: idx * 0.05 }}
+                >
+                  <ProblemCard problem={problem} />
+                </motion.div>
               ))}
             </div>
-          </div>
+          </motion.div>
 
-          <AIRecommendationCard recommendation={aiRecommendations[0]} />
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+          >
+            <AIRecommendationCard recommendation={aiRecommendations[0]} />
+          </motion.div>
         </div>
 
-        <div className="space-y-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="space-y-6"
+        >
           <div className="p-6 rounded-2xl bg-white border border-border">
             <SectionHeader
               title="Recent Activity"
@@ -121,22 +171,25 @@ export default function DashboardPage() {
             </h3>
             <div className="space-y-2">
               {[
-                "Generate Revenue Report",
-                "Export Customer Data",
-                "Review AI Insights",
-                "Check Inventory",
+                { label: "Generate Revenue Report", href: "/dashboard/revenue" },
+                { label: "Export Customer Data", href: "/dashboard/customers" },
+                { label: "Review AI Insights", href: "/dashboard" },
+                { label: "Check Inventory", href: "/dashboard/products" },
               ].map((action) => (
-                <button
-                  key={action}
+                <motion.button
+                  key={action.label}
+                  whileHover={{ x: 4 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => router.push(action.href)}
                   className="w-full text-left px-4 py-2.5 rounded-xl text-sm text-muted hover:text-foreground hover:bg-gray-50 transition-colors"
                 >
-                  {action}
-                </button>
+                  {action.label}
+                </motion.button>
               ))}
             </div>
           </div>
-        </div>
-      </div>
-    </div>
+        </motion.div>
+      </motion.div>
+    </motion.div>
   );
 }

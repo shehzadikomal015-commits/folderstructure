@@ -1,13 +1,37 @@
 "use client";
 
-import { Bell, Search, Calendar } from "lucide-react";
+import { Bell, Search, Calendar, LogOut, ChevronDown, User } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/landing/Logo";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { useRouter } from "next/navigation";
 
 export function DashboardNavbar() {
   const [searchFocused, setSearchFocused] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const { user, logout } = useAuth();
+  const router = useRouter();
+
+  const displayName =
+    user?.user_metadata?.name ||
+    user?.email?.split("@")[0] ||
+    "User";
+
+  const initials = displayName
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+
+  const userEmail = user?.email || "";
+
+  async function handleLogout() {
+    await logout();
+    router.push("/");
+  }
 
   return (
     <header className="sticky top-0 z-20 bg-white/90 backdrop-blur-xl border-b border-border">
@@ -44,14 +68,46 @@ export function DashboardNavbar() {
             <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-danger rounded-full ring-2 ring-white" />
           </motion.button>
 
-          <div className="flex items-center gap-3 pl-2 sm:pl-3 border-l border-border">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold text-sm shadow-md shadow-primary/25">
-              DU
-            </div>
-            <div className="hidden sm:block">
-              <p className="text-sm font-semibold text-foreground">Demo User</p>
-              <p className="text-xs text-muted">Store Admin</p>
-            </div>
+          <div className="relative">
+            <button
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              className="flex items-center gap-3 pl-2 sm:pl-3 border-l border-border hover:bg-gray-50 rounded-xl px-3 py-1.5 transition-colors"
+            >
+              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold text-sm shadow-md shadow-primary/25">
+                {initials}
+              </div>
+              <div className="hidden sm:block text-left">
+                <p className="text-sm font-semibold text-foreground">{displayName}</p>
+                <p className="text-xs text-muted">{userEmail}</p>
+              </div>
+              <ChevronDown className={cn("h-4 w-4 text-muted transition-transform duration-200 hidden sm:block", dropdownOpen && "rotate-180")} />
+            </button>
+
+            <AnimatePresence>
+              {dropdownOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute right-0 top-full mt-2 w-56 bg-white rounded-xl border border-border shadow-xl shadow-black/10 overflow-hidden"
+                >
+                  <div className="p-3 border-b border-border">
+                    <p className="text-sm font-semibold text-foreground">{displayName}</p>
+                    <p className="text-xs text-muted truncate">{userEmail}</p>
+                  </div>
+                  <div className="p-2">
+                    <button
+                      onClick={handleLogout}
+                      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-danger hover:bg-danger-light transition-colors"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      <span>Log out</span>
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </div>

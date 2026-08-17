@@ -45,45 +45,75 @@ export default function LoginPage() {
         <div className="bg-white/90 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white/20 p-8 sm:p-10 relative overflow-hidden">
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-secondary to-primary" />
 
-          <div className="flex flex-col items-center mb-10">
-            <Link href="/" className="mb-6">
-              <Logo className="h-16 w-16" />
-            </Link>
-            <h1 className="text-3xl font-extrabold text-foreground tracking-tight">
-              Welcome back
-            </h1>
-            <p className="text-sm text-muted mt-2">
-              Sign in to your RevenueAI account
-            </p>
-          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="flex flex-col items-center mb-10"
+          >
+            <motion.div
+              whileHover={{ scale: 1.05, rotate: 5 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
+              <Link href="/" className="mb-6">
+                <Logo className="h-16 w-16" />
+              </Link>
+            </motion.div>
+            <h1 className="text-3xl font-extrabold text-foreground tracking-tight">Welcome back</h1>
+            <p className="text-sm text-muted mt-2">Sign in to your RevenueAI account</p>
+          </motion.div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <motion.form
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            onSubmit={handleSubmit}
+            className="space-y-5"
+          >
             {error && (
               <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, y: -10, height: 0 }}
+                animate={{ opacity: 1, y: 0, height: "auto" }}
+                exit={{ opacity: 0, y: -10, height: 0 }}
                 className="p-3 rounded-xl bg-danger/10 border border-danger/20"
               >
                 <p className="text-sm text-danger">{error}</p>
               </motion.div>
             )}
-            <Input
-              label="Email"
-              type="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-            <Input
-              label="Password"
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-            <div className="flex items-center justify-between text-sm">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.4, delay: 0.35 }}
+            >
+              <Input
+                label="Email"
+                type="email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.4, delay: 0.4 }}
+            >
+              <Input
+                label="Password"
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.4, delay: 0.45 }}
+              className="flex items-center justify-between text-sm"
+            >
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
@@ -97,13 +127,24 @@ export default function LoginPage() {
               >
                 Forgot Password?
               </a>
-            </div>
-            <Button type="submit" className="w-full" size="lg" loading={loading}>
-              Sign In
-            </Button>
-          </form>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.5 }}
+            >
+              <Button type="submit" className="w-full" size="lg" loading={loading}>
+                Sign In
+              </Button>
+            </motion.div>
+          </motion.form>
 
-          <p className="text-center text-sm text-muted mt-8">
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.4, delay: 0.6 }}
+            className="text-center text-sm text-muted mt-8"
+          >
             Don&apos;t have an account?{" "}
             <Link
               href="/signup"
@@ -111,12 +152,17 @@ export default function LoginPage() {
             >
               Create one
             </Link>
-          </p>
+          </motion.p>
         </div>
 
-        <p className="text-center text-xs text-gray-500 mt-6">
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4, delay: 0.7 }}
+          className="text-center text-xs text-gray-500 mt-6"
+        >
           Demo: demo@airevenue.com / 12345678
-        </p>
+        </motion.p>
       </motion.div>
     </div>
   );
