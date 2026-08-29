@@ -1,24 +1,51 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useCart } from "@/components/store/CartProvider";
 import { storeProducts } from "@/lib/dummyData";
 import { Search, ShoppingCart, Star, Plus, Minus, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
-import { SectionHeader } from "@/components/ui/SectionHeader";
 import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/Supabase/client";
+import Image from "next/image";
+
+import Link from "next/link";
 
 export default function StorePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
   const { addToCart, cart, removeFromCart, updateQuantity, cartTotal, setIsOpen } = useCart();
 
-  const categories = ["All", ...new Set(storeProducts.map((p) => p.category))];
+  useEffect(() => {
+    async function loadProducts() {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from("products")
+        .select("*")
+        .order("created_at", { ascending: false });
 
-  const filteredProducts = storeProducts.filter((p) => {
+      if (error) {
+        console.error("Error fetching products:", error);
+        setProducts([]);
+      } else if (data && data.length > 0) {
+        setProducts(data);
+      } else {
+        setProducts(storeProducts);
+      }
+      setLoading(false);
+    }
+
+    loadProducts();
+  }, []);
+
+  const categories = ["All", ...new Set(products.map((p) => p.category).filter(Boolean))];
+
+  const filteredProducts = products.filter((p) => {
     const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === "All" || p.category === selectedCategory;
     return matchesSearch && matchesCategory;
@@ -91,7 +118,11 @@ export default function StorePage() {
           </select>
         </motion.div>
 
-        {filteredProducts.length > 0 ? (
+        {loading ? (
+          <div className="flex items-center justify-center py-24">
+            <div className="w-10 h-10 border-3 border-primary border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : filteredProducts.length > 0 ? (
           <motion.div
             initial="hidden"
             animate="visible"
@@ -105,20 +136,22 @@ export default function StorePage() {
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
           >
             {filteredProducts.map((product) => (
-              <motion.div
-                key={product.id}
-                variants={{
-                  hidden: { opacity: 0, y: 30 },
-                  visible: { opacity: 1, y: 0 },
-                }}
-                transition={{ duration: 0.4, ease: "easeOut" }}
-                className="group bg-white rounded-2xl border border-border overflow-hidden hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1 transition-all duration-300"
-              >
+              <Link key={product.id} href={`/products/${product.id}`}>
+                <motion.div
+                  variants={{
+                    hidden: { opacity: 0, y: 30 },
+                    visible: { opacity: 1, y: 0 },
+                  }}
+                  transition={{ duration: 0.4, ease: "easeOut" }}
+                  className="group bg-white rounded-2xl border border-border overflow-hidden hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+                >
                 <div className="aspect-square bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center relative overflow-hidden">
-                  {product.image ? (
-                    <img
-                      src={product.image}
+                  {product.image_url || product.image ? (
+                    <Image
+                      src={product.image_url || product.image}
                       alt={product.name}
+                      width={400}
+                      height={400}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     />
                   ) : (
@@ -131,23 +164,26 @@ export default function StorePage() {
                 <div className="p-5">
                   <div className="flex items-start justify-between gap-2 mb-2">
                     <h3 className="font-bold text-foreground text-lg">{product.name}</h3>
-                    <Badge variant="primary" className="text-xs">{product.category}</Badge>
+                    {product.category && (
+                      <Badge variant="primary" className="text-xs">{product.category}</Badge>
+                    )}
                   </div>
-                  <p className="text-sm text-muted mb-3 line-clamp-2">{product.description}</p>
+                  <p className="text-sm text-muted mb-3 line-clamp-2">{product.description || ""}</p>
                   <div className="flex items-center gap-1 mb-4">
                     <Star className="h-4 w-4 fill-accent text-accent" />
-                    <span className="text-sm font-medium text-foreground">{product.rating}</span>
+                    <span className="text-sm font-medium text-foreground">{product.rating || 4.0}</span>
                     <span className="text-sm text-muted">({product.stock} in stock)</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-2xl font-bold text-foreground">£{product.price.toFixed(2)}</span>
-                    <Button size="sm" onClick={() => addToCart(product)} className="gap-2">
+                    <span className="text-2xl font-bold text-foreground">£{Number(product.price).toFixed(2)}</span>
+                    <Button size="sm" onClick={(e) => { e.preventDefault(); e.stopPropagation(); addToCart(product); }} className="gap-2">
                       <Plus className="h-4 w-4" />
                       Add to Cart
                     </Button>
                   </div>
                 </div>
-              </motion.div>
+                </motion.div>
+              </Link>
             ))}
           </motion.div>
         ) : (
@@ -210,15 +246,15 @@ function CartDrawer() {
               {cart.map((item) => (
                 <div key={item.id} className="flex items-center gap-4 p-4 rounded-xl border border-border bg-gray-50/50">
                   <div className="h-16 w-16 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center flex-shrink-0 overflow-hidden">
-                    {item.image ? (
-                      <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                    {item.image_url || item.image ? (
+                      <Image src={item.image_url || item.image} alt={item.name} width={64} height={64} className="w-full h-full object-cover" />
                     ) : (
                       <ShoppingCart className="h-6 w-6 text-primary/40" />
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <h4 className="font-medium text-foreground truncate">{item.name}</h4>
-                    <p className="text-sm text-muted">£{item.price.toFixed(2)}</p>
+                    <p className="text-sm text-muted">£{Number(item.price).toFixed(2)}</p>
                     <div className="flex items-center gap-2 mt-2">
                       <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="h-8 w-8 rounded-lg border border-border flex items-center justify-center text-muted hover:text-foreground hover:bg-white transition-colors">
                         <Minus className="h-4 w-4" />

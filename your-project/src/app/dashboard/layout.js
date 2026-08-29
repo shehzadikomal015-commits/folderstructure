@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { DashboardNavbar } from "@/components/dashboard/Navbar";
+import RealtimeRefresh from "@/components/dashboard/RealtimeRefresh";
 
 export default function DashboardLayout({ children }) {
   const { user, loading } = useAuth();
@@ -41,6 +42,7 @@ export default function DashboardLayout({ children }) {
       <div className="pl-64 transition-all duration-300">
         <DashboardNavbar />
         <main className="p-6 lg:p-10">
+          <RealtimeRefresh tables={["orders", "products", "customers"]} />
           <AnimatePresence mode="wait">
             <motion.div
               key={pathname}

@@ -32,6 +32,7 @@ const menuItems = [
   { name: "Reports", href: "/dashboard", icon: BarChart3 },
   { name: "Settings", href: "/dashboard", icon: Settings },
   { name: "Store", href: "/store", icon: Store },
+  { name: "My Orders", href: "/orders", icon: ShoppingCart },
 ];
 
 const itemVariants = {

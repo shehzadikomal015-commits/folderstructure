@@ -7,19 +7,19 @@ const CartContext = createContext(null);
 const CART_STORAGE_KEY = "store_cart";
 
 export function CartProvider({ children }) {
-  const [cart, setCart] = useState([]);
-  const [isOpen, setIsOpen] = useState(false);
-
-  useEffect(() => {
+  const [cart, setCart] = useState(() => {
+    if (typeof window === "undefined") return [];
     const stored = localStorage.getItem(CART_STORAGE_KEY);
     if (stored) {
       try {
-        setCart(JSON.parse(stored));
+        return JSON.parse(stored);
       } catch (e) {
-        setCart([]);
+        return [];
       }
     }
-  }, []);
+    return [];
+  });
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
@@ -29,10 +29,12 @@ export function CartProvider({ children }) {
     setCart((prev) => {
       const existing = prev.find((item) => item.id === product.id);
       if (existing) {
+        const newQty = existing.quantity + 1;
+        if (newQty > (product.stock || 99)) {
+          return prev;
+        }
         return prev.map((item) =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
+          item.id === product.id ? { ...item, quantity: newQty } : item
         );
       }
       return [...prev, { ...product, quantity: 1 }];

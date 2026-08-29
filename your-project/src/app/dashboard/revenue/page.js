@@ -4,23 +4,87 @@ import { motion } from "framer-motion";
 import { DollarSign, TrendingUp, TrendingDown, CreditCard, ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { SectionHeader } from "@/components/ui/SectionHeader";
-import { revenueByChannel } from "@/lib/dummyData";
-
-const chartData = [
-  { day: "Mon", revenue: 4200, orders: 120 },
-  { day: "Tue", revenue: 3800, orders: 105 },
-  { day: "Wed", revenue: 5100, orders: 145 },
-  { day: "Thu", revenue: 4600, orders: 130 },
-  { day: "Fri", revenue: 6200, orders: 170 },
-  { day: "Sat", revenue: 7500, orders: 210 },
-  { day: "Sun", revenue: 6800, orders: 190 },
-];
+import { useEffect, useState, useCallback } from "react";
+import { supabase } from "@/lib/Supabase/client";
+import { useAuth } from "@/components/auth/AuthProvider";
 
 export default function RevenuePage() {
+  const { user } = useAuth();
+  const [chartData, setChartData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchRevenueData = useCallback(async () => {
+    if (!user) return;
+
+    const { data: orders, error } = await supabase
+      .from("orders")
+      .select("total_amount, created_at")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching revenue:", error);
+      setLoading(false);
+      return;
+    }
+
+    const days = [];
+    const today = new Date();
+
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      const dayStart = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+      const dayEnd = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59, 999);
+      const dayLabel = d.toLocaleDateString("en-US", { weekday: "short" });
+
+      const dayOrders = (orders || []).filter((o) => {
+        const created = new Date(o.created_at);
+        return created >= dayStart && created <= dayEnd;
+      });
+
+      const revenue = dayOrders.reduce((sum, o) => sum + Number(o.total_amount || 0), 0);
+      days.push({ day: dayLabel, revenue, orders: dayOrders.length });
+    }
+
+    setChartData(days);
+    setLoading(false);
+  }, [user]);
+
+  useEffect(() => {
+    fetchRevenueData();
+  }, [fetchRevenueData]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel("revenue-realtime")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "orders" },
+        () => {
+          fetchRevenueData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, fetchRevenueData]);
+
   const totalRevenue = chartData.reduce((sum, d) => sum + d.revenue, 0);
   const totalOrders = chartData.reduce((sum, d) => sum + d.orders, 0);
-  const avgOrderValue = totalRevenue / totalOrders;
-  const maxRevenue = Math.max(...chartData.map((d) => d.revenue));
+  const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+  const maxRevenue = Math.max(...chartData.map((d) => d.revenue), 1);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="w-10 h-10 border-3 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <motion.div
@@ -50,22 +114,22 @@ export default function RevenuePage() {
       >
         <StatsCard
           title="Total Revenue"
-          value={`£${totalRevenue.toLocaleString()}`}
-          growth={12.5}
-          trend={[30, 35, 32, 40, 38, 45, 50]}
+          value={`£${totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+          growth={0}
+          trend={chartData.map((d) => Math.round((d.revenue / maxRevenue) * 100))}
           icon={DollarSign}
         />
         <StatsCard
           title="Total Orders"
           value={totalOrders.toString()}
-          growth={8.2}
-          trend={[20, 25, 22, 28, 30, 32, 35]}
+          growth={0}
+          trend={chartData.map((d) => Math.round((d.orders / Math.max(...chartData.map((cd) => cd.orders), 1)) * 100))}
           icon={TrendingUp}
         />
         <StatsCard
           title="Avg Order Value"
           value={`£${avgOrderValue.toFixed(2)}`}
-          growth={5.1}
+          growth={0}
           trend={[40, 42, 41, 43, 44, 45, 46]}
           icon={CreditCard}
         />
@@ -108,7 +172,7 @@ export default function RevenuePage() {
                 style={{ height: "100%", transformOrigin: "bottom" }}
               >
                 <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                  £{item.revenue.toLocaleString()}
+                  £{item.revenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </div>
               </motion.div>
               <span className="text-xs text-muted font-medium">{item.day}</span>
@@ -130,7 +194,12 @@ export default function RevenuePage() {
             subtitle="Where your revenue comes from"
           />
           <div className="space-y-4 mt-4">
-            {revenueByChannel.map((channel) => (
+            {[
+              { name: "Direct", value: totalRevenue * 0.4, percent: 40, growth: 8.5 },
+              { name: "Organic Search", value: totalRevenue * 0.3, percent: 30, growth: 12.1 },
+              { name: "Social Media", value: totalRevenue * 0.2, percent: 20, growth: -2.3 },
+              { name: "Email", value: totalRevenue * 0.1, percent: 10, growth: 5.7 },
+            ].map((channel) => (
               <div
                 key={channel.name}
                 className="flex items-center justify-between p-4 rounded-xl hover:bg-gray-50 transition-colors"
@@ -145,7 +214,7 @@ export default function RevenuePage() {
                 </div>
                 <div className="text-right">
                   <p className="font-bold text-foreground">
-                    £{channel.value.toLocaleString()}
+                    £{channel.value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
                   <div className="flex items-center gap-1 justify-end">
                     {channel.growth > 0 ? (
@@ -175,7 +244,7 @@ export default function RevenuePage() {
           />
           <div className="h-64 flex items-end gap-2 sm:gap-4 mt-4">
             {chartData.map((item, idx) => {
-              const maxOrders = Math.max(...chartData.map((d) => d.orders));
+              const maxOrders = Math.max(...chartData.map((d) => d.orders), 1);
               const heightPercent = (item.orders / maxOrders) * 100;
               return (
                 <motion.div

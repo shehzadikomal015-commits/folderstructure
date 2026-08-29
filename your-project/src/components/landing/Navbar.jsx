@@ -13,6 +13,7 @@ const navLinks = [
   { name: "Features", href: "#features" },
   { name: "How It Works", href: "#how-it-works" },
   { name: "FAQ", href: "#faq" },
+  { name: "Store", href: "/store" },
 ];
 
 export function LandingNavbar({ onOpenLogin, onOpenSignup }) {
@@ -99,7 +100,7 @@ export function LandingNavbar({ onOpenLogin, onOpenSignup }) {
             className="md:hidden bg-gradient-to-b from-background to-gray-50 backdrop-blur-2xl border-b border-gray-200"
           >
             <div className="px-4 py-6 space-y-2">
-              {navLinks.map((link, idx) => (
+               {navLinks.map((link, idx) => (
                 <motion.a
                   key={link.name}
                   href={link.href}

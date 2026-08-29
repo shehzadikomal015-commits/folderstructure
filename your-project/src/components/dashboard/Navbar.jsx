@@ -1,6 +1,7 @@
 "use client";
 
-import { Bell, Search, Calendar, LogOut, ChevronDown, User } from "lucide-react";
+import Link from "next/link";
+import { Bell, Search, Calendar, LogOut, ChevronDown, User, Store, ShoppingCart } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -37,6 +38,9 @@ export function DashboardNavbar() {
     <header className="sticky top-0 z-20 bg-white/90 backdrop-blur-xl border-b border-border">
       <div className="flex items-center justify-between h-16 px-6">
         <div className="flex items-center gap-4">
+          <Link href="/store" className="text-sm font-medium text-muted hover:text-foreground transition-colors">
+            View Store
+          </Link>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted" />
             <input
@@ -97,6 +101,20 @@ export function DashboardNavbar() {
                     <p className="text-xs text-muted truncate">{userEmail}</p>
                   </div>
                   <div className="p-2">
+                    <button
+                      onClick={() => { router.push("/store"); setDropdownOpen(false); }}
+                      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-foreground hover:bg-gray-50 transition-colors"
+                    >
+                      <Store className="h-4 w-4" />
+                      <span>View Store</span>
+                    </button>
+                    <button
+                      onClick={() => { router.push("/orders"); setDropdownOpen(false); }}
+                      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-foreground hover:bg-gray-50 transition-colors"
+                    >
+                      <ShoppingCart className="h-4 w-4" />
+                      <span>My Orders</span>
+                    </button>
                     <button
                       onClick={handleLogout}
                       className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-danger hover:bg-danger-light transition-colors"

@@ -15,7 +15,16 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  async function getUser() {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    setUser(user);
+  }
+
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     getUser();
 
     const {
@@ -28,14 +37,6 @@ export function AuthProvider({ children }) {
       subscription.unsubscribe();
     };
   }, []);
-
-  async function getUser() {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    setUser(user);
-  }
 
   async function login(email, password) {
     setLoading(true);
