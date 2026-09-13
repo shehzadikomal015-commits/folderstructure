@@ -108,7 +108,7 @@ export default function ProblemsPage() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="max-w-7xl mx-auto space-y-8"
+      className="max-w-7xl mx-auto space-y-6 sm:space-y-8"
     >
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -117,14 +117,14 @@ export default function ProblemsPage() {
         className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
       >
         <div>
-          <h1 className="text-3xl font-bold text-foreground tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
             Problems
           </h1>
-          <p className="text-muted mt-1">
+          <p className="text-sm text-muted mt-1">
             Track, analyze, and resolve revenue-impacting problems.
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <Button variant="outline" size="sm">
             <SlidersHorizontal className="h-4 w-4" />
             Filter
@@ -144,7 +144,7 @@ export default function ProblemsPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6"
       >
         {kpiStats.map((stat) => (
           <StatsCard
@@ -163,13 +163,13 @@ export default function ProblemsPage() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.5 }}
-        className="bg-white rounded-2xl border border-border p-6"
+        className="bg-white rounded-2xl border border-border p-4 sm:p-6"
       >
         <SectionHeader
           title="All Problems"
           subtitle="Issues detected across your store"
           action={
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted" />
                 <input
@@ -210,13 +210,13 @@ export default function ProblemsPage() {
             ))
           ) : (
             <div className="col-span-2 flex flex-col items-center justify-center py-16 px-4">
-              <div className="h-16 w-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
-                <AlertTriangle className="h-8 w-8 text-muted" />
+              <div className="h-14 w-14 sm:h-16 sm:w-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+                <AlertTriangle className="h-7 w-7 sm:h-8 sm:w-8 text-muted" />
               </div>
-              <h3 className="text-lg font-semibold text-foreground mb-1">
+              <h3 className="text-base sm:text-lg font-semibold text-foreground mb-1">
                 No problems found
               </h3>
-              <p className="text-sm text-muted mb-6 max-w-sm text-center">
+              <p className="text-xs sm:text-sm text-muted mb-5 sm:mb-6 max-w-sm text-center">
                 We could not find any problems matching your search criteria. Try adjusting your filters.
               </p>
               <Button variant="outline" size="sm" onClick={() => { setSearchQuery(""); setSelectedSeverity("All"); }}>
@@ -241,32 +241,32 @@ export default function ProblemsPage() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.5, delay: 0.2 }}
-        className="grid lg:grid-cols-3 gap-8"
+        className="grid lg:grid-cols-3 gap-6 sm:gap-8"
       >
-        <div className="lg:col-span-2 bg-white rounded-2xl border border-border p-6">
+        <div className="lg:col-span-2 bg-white rounded-2xl border border-border p-4 sm:p-6">
           <SectionHeader
             title="Revenue Leaks"
             subtitle="All identified revenue leak sources"
           />
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {revenueLeaks.map((leak) => (
               <div
                 key={leak.id}
-                className="flex items-center justify-between p-4 rounded-xl hover:bg-gray-50 transition-colors"
+                className="flex items-center justify-between p-3 sm:p-4 rounded-xl hover:bg-gray-50 transition-colors"
               >
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <p className="font-medium text-foreground">
+                    <p className="font-medium text-foreground text-sm sm:text-base">
                       {leak.title}
                     </p>
                     {getSeverityBadge(leak.severity)}
                   </div>
-                  <p className="text-sm text-muted">{leak.description}</p>
+                  <p className="text-xs sm:text-sm text-muted">{leak.description}</p>
                 </div>
                 <div className="text-right">
-                  <p className="font-bold text-danger">
+                  <p className="font-bold text-danger text-sm sm:text-base">
                     {leak.loss}
-                    <span className="text-sm font-normal text-muted">
+                    <span className="text-xs sm:text-sm font-normal text-muted">
                       {leak.lossPeriod}
                     </span>
                   </p>
@@ -275,7 +275,7 @@ export default function ProblemsPage() {
             ))}
           </div>
         </div>
-        <div className="bg-white rounded-2xl border border-border p-6">
+        <div className="bg-white rounded-2xl border border-border p-4 sm:p-6">
           <SectionHeader
             title="Problem Resolution Log"
             subtitle="Recent resolutions and updates"

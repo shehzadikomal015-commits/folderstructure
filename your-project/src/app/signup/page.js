@@ -7,6 +7,14 @@ import { useAuth } from "@/components/auth/AuthProvider";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Logo } from "@/components/landing/Logo";
+import { fadeInUp, fadeInScale, springTransition, smoothTransition, container, item } from "@/lib/motionVariants";
+
+const shakeKeyframes = {
+  shake: {
+    x: [0, -8, 8, -6, 6, -3, 3, 0],
+    transition: { duration: 0.5 },
+  },
+};
 
 export default function SignupPage() {
   const { signup } = useAuth();
@@ -47,61 +55,59 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-primary/10 relative overflow-auto">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-primary/10 relative overflow-auto py-8">
       <div className="absolute inset-0 -z-10">
-        <div className="absolute top-0 left-1/4 w-[700px] h-[700px] bg-primary/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-secondary/10 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-r from-primary/5 to-secondary/5 rounded-full blur-3xl" />
+        <motion.div
+          animate={{ y: [0, -30, 0] }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-0 left-1/4 w-[700px] h-[700px] bg-primary/10 rounded-full blur-3xl"
+        />
+        <motion.div
+          animate={{ y: [0, 25, 0] }}
+          transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+          className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-secondary/10 rounded-full blur-3xl"
+        />
+        <motion.div
+          animate={{ y: [0, -20, 0] }}
+          transition={{ duration: 9, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-r from-primary/5 to-secondary/5 rounded-full blur-3xl"
+        />
       </div>
 
       <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-        className="w-full max-w-md mx-4 my-8"
+        variants={fadeInScale}
+        initial="hidden"
+        animate="show"
+        transition={springTransition}
+        className="w-full max-w-md mx-4"
       >
-        <div className="bg-white/90 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white/20 p-8 sm:p-10 relative overflow-hidden">
+        <motion.div variants={fadeInUp} initial="hidden" animate="show" className="bg-white/90 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white/20 p-6 sm:p-8 lg:p-10 relative overflow-hidden">
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-secondary to-primary" />
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="flex flex-col items-center mb-10"
-          >
+          <motion.div variants={fadeInUp} initial="hidden" animate="show" className="flex flex-col items-center mb-8 sm:mb-10">
             <motion.div
               whileHover={{ scale: 1.05, rotate: 5 }}
               transition={{ type: "spring", stiffness: 300 }}
             >
-              <Link href="/" className="mb-6">
-                <Logo className="h-16 w-16" />
+              <Link href="/" className="mb-5 sm:mb-6">
+                <Logo className="h-14 w-14 sm:h-16 sm:w-16" />
               </Link>
             </motion.div>
-            <h1 className="text-3xl font-extrabold text-foreground tracking-tight">Create your account</h1>
-            <p className="text-sm text-muted mt-2">Start recovering lost revenue today</p>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">Create your account</h1>
+            <p className="text-xs sm:text-sm text-muted mt-1 sm:mt-2">Start recovering lost revenue today</p>
           </motion.div>
 
-          <motion.form
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            onSubmit={handleSubmit}
-            className="space-y-5"
-          >
+          <motion.form variants={container} initial="hidden" animate="show" onSubmit={handleSubmit} className="space-y-5">
             {error && (
               <motion.div
-                initial={{ opacity: 0, y: -10, height: 0 }}
-                animate={{ opacity: 1, y: 0, height: "auto" }}
+                variants={shakeKeyframes}
+                animate="shake"
                 className="p-3 rounded-xl bg-danger/10 border border-danger/20"
               >
                 <p className="text-sm text-danger">{error}</p>
               </motion.div>
             )}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.4, delay: 0.35 }}
-            >
+            <motion.div variants={item}>
               <Input
                 label="Full Name"
                 type="text"
@@ -111,11 +117,7 @@ export default function SignupPage() {
                 required
               />
             </motion.div>
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.4, delay: 0.4 }}
-            >
+            <motion.div variants={item}>
               <Input
                 label="Email"
                 type="email"
@@ -125,11 +127,7 @@ export default function SignupPage() {
                 required
               />
             </motion.div>
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.4, delay: 0.45 }}
-            >
+            <motion.div variants={item}>
               <Input
                 label="Password"
                 type="password"
@@ -139,11 +137,7 @@ export default function SignupPage() {
                 required
               />
             </motion.div>
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.4, delay: 0.5 }}
-            >
+            <motion.div variants={item}>
               <Input
                 label="Confirm Password"
                 type="password"
@@ -153,23 +147,14 @@ export default function SignupPage() {
                 required
               />
             </motion.div>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.55 }}
-            >
+            <motion.div variants={item}>
               <Button type="submit" className="w-full" size="lg" loading={loading}>
                 Create Account
               </Button>
             </motion.div>
           </motion.form>
 
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.4, delay: 0.6 }}
-            className="text-center text-sm text-muted mt-8"
-          >
+          <motion.p variants={fadeInUp} initial="hidden" animate="show" className="text-center text-xs sm:text-sm text-muted mt-6 sm:mt-8">
             Already have an account?{" "}
             <Link
               href="/login"
@@ -178,7 +163,7 @@ export default function SignupPage() {
               Sign in
             </Link>
           </motion.p>
-        </div>
+        </motion.div>
       </motion.div>
     </div>
   );

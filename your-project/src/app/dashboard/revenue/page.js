@@ -4,28 +4,18 @@ import { motion } from "framer-motion";
 import { DollarSign, TrendingUp, TrendingDown, CreditCard, ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { SectionHeader } from "@/components/ui/SectionHeader";
-import { useEffect, useState, useCallback } from "react";
-import { supabase } from "@/lib/Supabase/client";
+import { useState, useMemo } from "react";
+import { localStore, seedIfEmpty } from "@/lib/localStore";
 import { useAuth } from "@/components/auth/AuthProvider";
 
 export default function RevenuePage() {
   const { user } = useAuth();
-  const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchRevenueData = useCallback(async () => {
-    if (!user) return;
-
-    const { data: orders, error } = await supabase
-      .from("orders")
-      .select("total_amount, created_at")
-      .order("created_at", { ascending: false });
-
-    if (error) {
-      console.error("Error fetching revenue:", error);
-      setLoading(false);
-      return;
-    }
+  const chartData = useMemo(() => {
+    if (!user) return [];
+    seedIfEmpty();
+    const orders = localStore.getOrders();
 
     const days = [];
     const today = new Date();
@@ -46,32 +36,8 @@ export default function RevenuePage() {
       days.push({ day: dayLabel, revenue, orders: dayOrders.length });
     }
 
-    setChartData(days);
-    setLoading(false);
+    return days;
   }, [user]);
-
-  useEffect(() => {
-    fetchRevenueData();
-  }, [fetchRevenueData]);
-
-  useEffect(() => {
-    if (!user) return;
-
-    const channel = supabase
-      .channel("revenue-realtime")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "orders" },
-        () => {
-          fetchRevenueData();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [user, fetchRevenueData]);
 
   const totalRevenue = chartData.reduce((sum, d) => sum + d.revenue, 0);
   const totalOrders = chartData.reduce((sum, d) => sum + d.orders, 0);
@@ -91,17 +57,17 @@ export default function RevenuePage() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="max-w-7xl mx-auto space-y-8"
+      className="max-w-7xl mx-auto space-y-6 sm:space-y-8"
     >
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <h1 className="text-3xl font-bold text-foreground tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
           Revenue
         </h1>
-        <p className="text-muted mt-1">
+        <p className="text-sm text-muted mt-1">
           Track your revenue performance and trends over time.
         </p>
       </motion.div>
@@ -110,7 +76,7 @@ export default function RevenuePage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6"
       >
         <StatsCard
           title="Total Revenue"
@@ -147,13 +113,13 @@ export default function RevenuePage() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.5 }}
-        className="bg-white rounded-2xl border border-border p-6"
+        className="bg-white rounded-2xl border border-border p-4 sm:p-6"
       >
         <SectionHeader
           title="Revenue Overview"
           subtitle="Daily revenue for the last 7 days"
         />
-        <div className="h-80 flex items-end gap-2 sm:gap-4 mt-6">
+        <div className="h-64 sm:h-80 flex items-end gap-1 sm:gap-2 lg:gap-4 mt-4 sm:mt-6">
           {chartData.map((item, idx) => (
             <motion.div
               key={item.day}
@@ -161,7 +127,7 @@ export default function RevenuePage() {
               whileInView={{ height: "auto", opacity: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: idx * 0.1 }}
-              className="flex-1 flex flex-col items-center gap-2"
+              className="flex-1 flex flex-col items-center gap-1 sm:gap-2"
             >
               <motion.div
                 initial={{ scaleY: 0 }}
@@ -186,14 +152,14 @@ export default function RevenuePage() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.5, delay: 0.1 }}
-        className="grid lg:grid-cols-2 gap-8"
+        className="grid lg:grid-cols-2 gap-6 sm:gap-8"
       >
-        <div className="bg-white rounded-2xl border border-border p-6">
+        <div className="bg-white rounded-2xl border border-border p-4 sm:p-6">
           <SectionHeader
             title="Revenue by Channel"
             subtitle="Where your revenue comes from"
           />
-          <div className="space-y-4 mt-4">
+          <div className="space-y-3 sm:space-y-4 mt-3 sm:mt-4">
             {[
               { name: "Direct", value: totalRevenue * 0.4, percent: 40, growth: 8.5 },
               { name: "Organic Search", value: totalRevenue * 0.3, percent: 30, growth: 12.1 },
@@ -202,18 +168,18 @@ export default function RevenuePage() {
             ].map((channel) => (
               <div
                 key={channel.name}
-                className="flex items-center justify-between p-4 rounded-xl hover:bg-gray-50 transition-colors"
+                className="flex items-center justify-between p-3 sm:p-4 rounded-xl hover:bg-gray-50 transition-colors"
               >
                 <div>
-                  <p className="font-medium text-foreground">
+                  <p className="font-medium text-foreground text-sm sm:text-base">
                     {channel.name}
                   </p>
-                  <p className="text-sm text-muted">
+                  <p className="text-xs sm:text-sm text-muted">
                     {channel.percent}% of total revenue
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="font-bold text-foreground">
+                  <p className="font-bold text-foreground text-sm sm:text-base">
                     £{channel.value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
                   <div className="flex items-center gap-1 justify-end">
@@ -237,12 +203,12 @@ export default function RevenuePage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl border border-border p-6">
+        <div className="bg-white rounded-2xl border border-border p-4 sm:p-6">
           <SectionHeader
             title="Orders Trend"
             subtitle="Daily orders for the last 7 days"
           />
-          <div className="h-64 flex items-end gap-2 sm:gap-4 mt-4">
+          <div className="h-48 sm:h-64 flex items-end gap-1 sm:gap-2 lg:gap-4 mt-3 sm:mt-4">
             {chartData.map((item, idx) => {
               const maxOrders = Math.max(...chartData.map((d) => d.orders), 1);
               const heightPercent = (item.orders / maxOrders) * 100;
@@ -253,7 +219,7 @@ export default function RevenuePage() {
                   whileInView={{ height: `${heightPercent}%`, opacity: 1 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.6, delay: idx * 0.1, ease: "easeOut" }}
-                  className="flex-1 flex flex-col items-center gap-2"
+                  className="flex-1 flex flex-col items-center gap-1 sm:gap-2"
                 >
                   <div className="w-full bg-gradient-to-t from-secondary to-secondary-light rounded-t-xl relative group cursor-pointer h-full">
                     <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">

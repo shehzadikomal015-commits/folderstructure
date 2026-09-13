@@ -11,6 +11,10 @@ function getFormString(formData: FormData, fieldName: string) {
 export async function placeOrder(formData: FormData) {
   const supabase = await createServerClient();
 
+  if (!supabase) {
+    return { success: false, error: "Supabase not configured. Please set up environment variables." };
+  }
+
   const {
     data: { user },
     error: authError,
@@ -81,6 +85,10 @@ export async function placeOrder(formData: FormData) {
 export async function getMyOrders() {
   const supabase = await createServerClient();
 
+  if (!supabase) {
+    return { orders: [], error: "Supabase not configured" };
+  }
+
   const {
     data: { user },
     error: authError,
@@ -106,6 +114,10 @@ export async function getMyOrders() {
 
 export async function getOrderById(orderId: string) {
   const supabase = await createServerClient();
+
+  if (!supabase) {
+    return { order: null, error: "Supabase not configured" };
+  }
 
   const {
     data: { user },

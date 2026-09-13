@@ -1,6 +1,8 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { container, item, fadeInUp, smoothTransition } from "@/lib/motionVariants";
 
 export function Timeline({ items }) {
   const typeColors = {
@@ -12,13 +14,27 @@ export function Timeline({ items }) {
   };
 
   return (
-    <div className="relative">
-      <div className="absolute left-3 top-2 bottom-2 w-px bg-border" />
+    <motion.div
+      variants={container}
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true, margin: "-50px" }}
+      className="relative"
+    >
+      <motion.div
+        initial={{ scaleY: 0 }}
+        whileInView={{ scaleY: 1 }}
+        viewport={{ once: true, margin: "-50px" }}
+        transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
+        className="absolute left-3 top-2 bottom-2 w-px bg-border origin-top"
+      />
       <div className="space-y-4">
         {items.map((item) => (
-          <div key={item.id} className="flex gap-4">
+          <motion.div key={item.id} variants={item} className="flex gap-4">
             <div className="relative z-10 mt-1">
-              <div
+              <motion.div
+                whileHover={{ scale: 1.5 }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
                 className={cn(
                   "w-2.5 h-2.5 rounded-full",
                   typeColors[item.type] || typeColors.muted
@@ -31,9 +47,9 @@ export function Timeline({ items }) {
               </p>
               <p className="text-xs text-muted mt-0.5">{item.time}</p>
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
-    </div>
+    </motion.div>
   );
 }

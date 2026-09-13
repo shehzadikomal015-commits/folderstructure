@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Truck, RotateCcw, TrendingDown, Users, ShoppingCart, BarChart3 } from "lucide-react";
+import { container, item, fadeInUp, hoverLift, smoothTransition } from "@/lib/motionVariants";
 
 const problems = [
   {
@@ -36,45 +37,30 @@ const problems = [
   },
 ];
 
-const container = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-    },
-  },
-};
-
-const card = {
-  hidden: { opacity: 0, y: 40 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
-};
-
 export function ProblemSection() {
   return (
-    <section id="problems" className="py-24 bg-background relative overflow-hidden">
+    <section id="problems" className="py-24 bg-gradient-to-b from-background via-gray-50 to-background relative overflow-hidden">
       <div className="absolute inset-0 -z-10">
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-danger/5 rounded-full blur-[100px]" />
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-primary/5 rounded-full blur-[100px]" />
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[100px]" />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-secondary/5 rounded-full blur-[100px]" />
       </div>
       <div className="absolute inset-0 -z-10">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-danger/[0.02] to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/[0.02] to-transparent" />
       </div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.7 }}
+          variants={fadeInUp}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: "-50px" }}
           className="text-center max-w-3xl mx-auto mb-20"
         >
-          <span className="inline-block px-4 py-1.5 rounded-full bg-danger/10 border border-danger/20 text-sm font-semibold text-danger mb-6">
+          <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-sm font-semibold text-primary-light mb-6">
             Revenue Leaks
           </span>
           <h2 className="text-4xl sm:text-5xl font-extrabold text-foreground mb-6 tracking-tight">
             Silent revenue leaks
-            <span className="bg-gradient-to-r from-danger to-danger-light bg-clip-text text-transparent"> hurting you</span>
+            <span className="bg-gradient-to-r from-primary via-primary-light to-secondary bg-clip-text text-transparent"> hurting you</span>
           </h2>
           <p className="text-lg text-muted leading-relaxed">
             Every ecommerce store faces hidden problems that drain revenue. Without AI, they remain invisible until it&apos;s too late.
@@ -85,19 +71,24 @@ export function ProblemSection() {
           variants={container}
           initial="hidden"
           whileInView="show"
-          viewport={{ once: true, margin: "-100px" }}
+          viewport={{ once: true, margin: "-50px" }}
           className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
           {problems.map((problem) => (
             <motion.div
               key={problem.title}
-              variants={card}
-              whileHover={{ y: -8, scale: 1.02 }}
+              variants={item}
+              whileHover={{ y: -8, scale: 1.02, rotateY: 2 }}
+              transition={smoothTransition}
               className="group p-8 rounded-3xl bg-white/50 border border-gray-200 hover:border-primary/30 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500"
             >
-              <div className="w-16 h-16 rounded-2xl bg-danger/10 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-danger/15 transition-all duration-500 shadow-lg shadow-danger/5">
-                <problem.icon className="h-8 w-8 text-danger" />
-              </div>
+              <motion.div
+                whileHover={{ scale: 1.1, rotate: -5 }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center mb-6 group-hover:from-primary/30 group-hover:to-secondary/30 group-hover:scale-110 transition-all duration-500 shadow-lg shadow-primary/5 border border-primary/10"
+              >
+                <problem.icon className="h-8 w-8 text-primary-light" />
+              </motion.div>
               <h3 className="text-xl font-bold text-foreground mb-3">
                 {problem.title}
               </h3>

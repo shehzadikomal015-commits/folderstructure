@@ -2,8 +2,8 @@
 
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useMemo } from "react";
+import { motion } from "framer-motion";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { ProblemCard } from "@/components/dashboard/ProblemCard";
 import { AIRecommendationCard } from "@/components/dashboard/AIRecommendationCard";
@@ -15,7 +15,6 @@ import {
   TrendingUp,
   Plus,
   Store,
-  AlertCircle,
 } from "lucide-react";
 import {
   problems,
@@ -24,103 +23,47 @@ import {
 } from "@/lib/dummyData";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Button } from "@/components/ui/Button";
-import { supabase } from "@/lib/Supabase/client";
+import { localStore, seedIfEmpty } from "@/lib/localStore";
 import CreateStoreModal from "@/components/dashboard/CreateStoreModal";
 
 export default function DashboardPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
-  const [stats, setStats] = useState(null);
-  const [store, setStore] = useState(null);
-  const [loadingData, setLoadingData] = useState(true);
   const [showCreateStore, setShowCreateStore] = useState(false);
 
-  const fetchData = useCallback(async () => {
-    if (!user) return;
+  seedIfEmpty();
+  const stores = localStore.getStores();
+  const userStore = stores.find((s) => s.user_id === user.id) || null;
 
-    const { data: storeData, error: storeError } = await supabase
-      .from("stores")
-      .select("*")
-      .eq("user_id", user.id)
-      .single();
+  const stats = useMemo(() => {
+    if (!userStore) return null;
 
-    if (storeError && storeError.code !== "PGRST116") {
-      console.error("Error fetching store:", storeError);
-    }
+    const orders = localStore.getOrders();
+    const products = localStore.getProducts();
+    const customers = localStore.getCustomers();
 
-    setStore(storeData);
+    const storeOrders = orders.filter((o) => o.store_id === userStore.id);
+    const totalRevenue = storeOrders.reduce(
+      (sum, o) => sum + Number(o.total_amount || 0),
+      0
+    );
+    const totalOrders = storeOrders.length;
+    const totalProducts = products.length;
+    const totalCustomers = customers.length;
 
-    if (!storeData) {
-      setStats(null);
-      setLoadingData(false);
-      return;
-    }
-
-    const [ordersRes, productsRes, customersRes] = await Promise.all([
-      supabase.from("orders").select("*", { count: "exact" }).eq("store_id", storeData.id),
-      supabase.from("products").select("*", { count: "exact" }).eq("store_id", storeData.id),
-      supabase.from("customers").select("*", { count: "exact" }),
-    ]);
-
-    const orders = ordersRes.data || [];
-    const totalRevenue = orders.reduce((sum, o) => sum + Number(o.total_amount || 0), 0);
-    const totalOrders = orders.length;
-    const totalProducts = productsRes.count || 0;
-    const totalCustomers = customersRes.count || 0;
-
-    setStats({
-      revenue: { value: `£${totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, count: totalRevenue },
+    return {
+      revenue: {
+        value: `£${totalRevenue.toLocaleString(undefined, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })}`,
+        count: totalRevenue,
+      },
       orders: { value: String(totalOrders), count: totalOrders },
       products: { value: String(totalProducts), count: totalProducts },
       customers: { value: String(totalCustomers), count: totalCustomers },
-    });
-    setLoadingData(false);
-  }, [user]);
-
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push("/");
-    }
-  }, [user, loading, router]);
-
-  useEffect(() => {
-    if (user) {
-      fetchData();
-    }
-  }, [user, fetchData]);
-
-  useEffect(() => {
-    if (!user) return;
-
-    const channel = supabase
-      .channel("dashboard-realtime")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "orders" },
-        () => {
-          fetchData();
-        }
-      )
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "products" },
-        () => {
-          fetchData();
-        }
-      )
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "customers" },
-        () => {
-          fetchData();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
     };
-  }, [user, fetchData]);
+  }, [userStore]);
 
   if (loading) {
     return (
@@ -149,96 +92,93 @@ export default function DashboardPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <h1 className="text-3xl font-extrabold text-foreground tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
           Welcome back, {displayName}
         </h1>
-        <p className="text-muted mt-2 text-base">
+        <p className="text-muted mt-2 text-sm sm:text-base">
           Here&apos;s what&apos;s happening with your store today.
         </p>
       </motion.div>
 
-      <AnimatePresence mode="wait">
-        {!store && !loadingData ? (
-          <motion.div
-            key="no-store"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="bg-white rounded-3xl border border-border p-8 text-center"
-          >
-            <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
-              <Store className="h-8 w-8 text-primary" />
+      {!userStore ? (
+        <motion.div
+          key="no-store"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white rounded-3xl border border-border p-6 sm:p-8 text-center"
+        >
+          <div className="h-14 w-14 sm:h-16 sm:w-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-5 sm:mb-6">
+            <Store className="h-7 w-7 sm:h-8 sm:w-8 text-primary" />
+          </div>
+          <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2">Create Your Store</h2>
+          <p className="text-muted mb-5 sm:mb-6 max-w-md mx-auto text-sm sm:text-base">
+            Set up your store to start tracking orders, revenue, and customer activity. Each admin can create only one store.
+          </p>
+          <Button size="lg" onClick={() => setShowCreateStore(true)} className="gap-2">
+            <Plus className="h-5 w-5" />
+            Create Store
+          </Button>
+          <CreateStoreModal open={showCreateStore} onOpenChange={setShowCreateStore} />
+        </motion.div>
+      ) : !stats ? (
+        <motion.div
+          key="loading"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+        >
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="bg-white rounded-3xl border border-border p-6 animate-pulse">
+              <div className="h-4 bg-gray-200 rounded w-1/2 mb-4" />
+              <div className="h-8 bg-gray-200 rounded w-3/4" />
             </div>
-            <h2 className="text-2xl font-bold text-foreground mb-2">Create Your Store</h2>
-            <p className="text-muted mb-6 max-w-md mx-auto">
-              Set up your store to start tracking orders, revenue, and customer activity. Each admin can create only one store.
-            </p>
-            <Button size="lg" onClick={() => setShowCreateStore(true)} className="gap-2">
-              <Plus className="h-5 w-5" />
-              Create Store
-            </Button>
-            <CreateStoreModal open={showCreateStore} onOpenChange={setShowCreateStore} onSuccess={fetchData} />
-          </motion.div>
-        ) : loadingData || !stats ? (
-          <motion.div
-            key="loading"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
-          >
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="bg-white rounded-3xl border border-border p-6 animate-pulse">
-                <div className="h-4 bg-gray-200 rounded w-1/2 mb-4" />
-                <div className="h-8 bg-gray-200 rounded w-3/4" />
-              </div>
-            ))}
-          </motion.div>
-        ) : (
-          <motion.div
-            key="stats"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
-          >
-            <StatsCard
-              title="Revenue"
-              value={stats.revenue.value}
-              growth={0}
-              trend={[30, 35, 32, 40, 38, 45, 50]}
-              icon={DollarSign}
-            />
-            <StatsCard
-              title="Orders"
-              value={stats.orders.value}
-              growth={0}
-              trend={[20, 25, 22, 28, 30, 32, 35]}
-              icon={ShoppingCart}
-            />
-            <StatsCard
-              title="Customers"
-              value={stats.customers.value}
-              growth={0}
-              trend={[15, 18, 20, 22, 25, 28, 30]}
-              icon={Users}
-            />
-            <StatsCard
-              title="Products"
-              value={stats.products.value}
-              growth={0}
-              trend={[40, 38, 35, 32, 30, 28, 25]}
-              icon={TrendingUp}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
+          ))}
+        </motion.div>
+      ) : (
+        <motion.div
+          key="stats"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6"
+        >
+          <StatsCard
+            title="Revenue"
+            value={stats.revenue.value}
+            growth={0}
+            trend={[30, 35, 32, 40, 38, 45, 50]}
+            icon={DollarSign}
+          />
+          <StatsCard
+            title="Orders"
+            value={stats.orders.value}
+            growth={0}
+            trend={[20, 25, 22, 28, 30, 32, 35]}
+            icon={ShoppingCart}
+          />
+          <StatsCard
+            title="Customers"
+            value={stats.customers.value}
+            growth={0}
+            trend={[15, 18, 20, 22, 25, 28, 30]}
+            icon={Users}
+          />
+          <StatsCard
+            title="Products"
+            value={stats.products.value}
+            growth={0}
+            trend={[40, 38, 35, 32, 30, 28, 25]}
+            icon={TrendingUp}
+          />
+        </motion.div>
+      )}
 
-      {store && (
+      {userStore && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="grid lg:grid-cols-3 gap-8"
+          className="grid lg:grid-cols-3 gap-6 sm:gap-8"
         >
           <div className="lg:col-span-2 space-y-6">
             <motion.div
@@ -287,7 +227,7 @@ export default function DashboardPage() {
             transition={{ duration: 0.5, delay: 0.3 }}
             className="space-y-6"
           >
-            <div className="p-6 rounded-2xl bg-white border border-border">
+            <div className="p-4 sm:p-6 rounded-2xl bg-white border border-border">
               <SectionHeader
                 title="Recent Activity"
                 subtitle="Latest updates from your store"
@@ -295,7 +235,7 @@ export default function DashboardPage() {
               <Timeline items={activities} />
             </div>
 
-            <div className="p-6 rounded-2xl bg-white border border-border">
+            <div className="p-4 sm:p-6 rounded-2xl bg-white border border-border">
               <h3 className="font-bold text-foreground mb-4">
                 Quick Actions
               </h3>

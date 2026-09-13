@@ -14,12 +14,12 @@ export function Logo({ className = "h-12 w-12" }) {
         <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
           <defs>
             <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#E11D48" />
-              <stop offset="100%" stopColor="#475569" />
+              <stop offset="0%" stopColor="#4338CA" />
+              <stop offset="100%" stopColor="#1E293B" />
             </linearGradient>
             <linearGradient id="logoGlow" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#E11D48" stopOpacity="0.3" />
-              <stop offset="100%" stopColor="#475569" stopOpacity="0.3" />
+              <stop offset="0%" stopColor="#4338CA" stopOpacity="0.3" />
+              <stop offset="100%" stopColor="#1E293B" stopOpacity="0.3" />
             </linearGradient>
           </defs>
           <circle cx="18" cy="18" r="16" fill="url(#logoGlow)" />

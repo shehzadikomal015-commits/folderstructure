@@ -20,11 +20,11 @@ export default function CartPage() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center max-w-md"
         >
-          <div className="h-20 w-20 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-6">
-            <ShoppingBag className="h-10 w-10 text-muted" />
+          <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-5 sm:mb-6">
+            <ShoppingBag className="h-8 w-8 sm:h-10 sm:w-10 text-muted" />
           </div>
-          <h1 className="text-2xl font-bold text-foreground mb-2">Your cart is empty</h1>
-          <p className="text-muted mb-8">
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground mb-2">Your cart is empty</h1>
+          <p className="text-sm text-muted mb-6 sm:mb-8">
             Looks like you have not added anything to your cart yet.
           </p>
           <Link href="/store">
@@ -38,16 +38,16 @@ export default function CartPage() {
   return (
     <div className="min-h-screen bg-gray-50/50">
       <StoreNavbar />
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="flex items-center justify-between mb-8"
+          className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8"
         >
           <div>
-            <h1 className="text-3xl font-bold text-foreground tracking-tight">Shopping Cart</h1>
-            <p className="text-muted mt-1">
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">Shopping Cart</h1>
+            <p className="text-sm text-muted mt-1">
               {cart.reduce((sum, item) => sum + item.quantity, 0)} items in your cart
             </p>
           </div>
@@ -57,7 +57,7 @@ export default function CartPage() {
           </Button>
         </motion.div>
 
-        <div className="grid lg:grid-cols-3 gap-8">
+        <div className="grid lg:grid-cols-3 gap-6 sm:gap-8">
           <div className="lg:col-span-2 space-y-4">
             {cart.map((item, idx) => (
               <motion.div
@@ -68,7 +68,7 @@ export default function CartPage() {
                 className="bg-white rounded-2xl border border-border p-4 sm:p-6"
               >
                 <div className="flex items-start gap-4 sm:gap-6">
-                  <div className="h-24 w-24 sm:h-32 sm:w-32 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                  <div className="h-20 w-20 sm:h-28 sm:w-28 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center flex-shrink-0 overflow-hidden">
                     {item.image_url || item.image ? (
                       <Image
                         src={item.image_url || item.image}
@@ -78,17 +78,17 @@ export default function CartPage() {
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <ShoppingCart className="h-8 w-8 text-primary/40" />
+                      <ShoppingCart className="h-6 w-6 sm:h-8 sm:w-8 text-primary/40" />
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-4">
                       <div>
-                        <h3 className="font-bold text-foreground text-lg">{item.name}</h3>
-                        <p className="text-sm text-muted mt-1">
+                        <h3 className="font-bold text-foreground text-base sm:text-lg">{item.name}</h3>
+                        <p className="text-xs sm:text-sm text-muted mt-1">
                           {item.category && <Badge variant="primary" className="text-xs mr-2">{item.category}</Badge>}
                         </p>
-                        <p className="text-lg font-semibold text-foreground mt-2">
+                        <p className="text-base sm:text-lg font-semibold text-foreground mt-1 sm:mt-2">
                           £{Number(item.price).toFixed(2)}
                         </p>
                       </div>
@@ -96,29 +96,29 @@ export default function CartPage() {
                         onClick={() => removeFromCart(item.id)}
                         className="p-2 rounded-lg text-muted hover:text-danger hover:bg-danger-light transition-colors"
                       >
-                        <Trash2 className="h-5 w-5" />
+                        <Trash2 className="h-4 w-4 sm:h-5 sm:w-5" />
                       </button>
                     </div>
-                    <div className="flex items-center justify-between mt-4">
-                      <div className="flex items-center gap-3">
+                    <div className="flex items-center justify-between mt-3 sm:mt-4">
+                      <div className="flex items-center gap-2 sm:gap-3">
                         <button
                           onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                          className="h-9 w-9 rounded-lg border border-border flex items-center justify-center text-muted hover:text-foreground hover:bg-gray-50 transition-colors"
+                          className="h-8 w-8 sm:h-9 sm:w-9 rounded-lg border border-border flex items-center justify-center text-muted hover:text-foreground hover:bg-gray-50 transition-colors"
                         >
-                          <Minus className="h-4 w-4" />
+                          <Minus className="h-3 w-3 sm:h-4 sm:w-4" />
                         </button>
-                        <span className="text-sm font-bold text-foreground w-8 text-center">
+                        <span className="text-sm font-bold text-foreground w-6 sm:w-8 text-center">
                           {item.quantity}
                         </span>
                         <button
                           onClick={() => updateQuantity(item.id, item.quantity + 1)}
                           disabled={item.quantity >= item.stock}
-                          className="h-9 w-9 rounded-lg border border-border flex items-center justify-center text-muted hover:text-foreground hover:bg-gray-50 transition-colors disabled:opacity-50"
+                          className="h-8 w-8 sm:h-9 sm:w-9 rounded-lg border border-border flex items-center justify-center text-muted hover:text-foreground hover:bg-gray-50 transition-colors disabled:opacity-50"
                         >
-                          <Plus className="h-4 w-4" />
+                          <Plus className="h-3 w-3 sm:h-4 sm:w-4" />
                         </button>
                       </div>
-                      <p className="text-lg font-bold text-foreground">
+                      <p className="text-base sm:text-lg font-bold text-foreground">
                         £{(Number(item.price) * item.quantity).toFixed(2)}
                       </p>
                     </div>
@@ -133,10 +133,10 @@ export default function CartPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="bg-white rounded-2xl border border-border p-6 sticky top-24"
+              className="bg-white rounded-2xl border border-border p-4 sm:p-6 sticky top-24"
             >
-              <h3 className="font-bold text-foreground text-lg mb-6">Order Summary</h3>
-              <div className="space-y-4 mb-6">
+              <h3 className="font-bold text-foreground text-base sm:text-lg mb-4 sm:mb-6">Order Summary</h3>
+              <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
                 {cart.map((item) => (
                   <div key={item.id} className="flex items-center justify-between text-sm">
                     <span className="text-muted truncate pr-4">
@@ -148,7 +148,7 @@ export default function CartPage() {
                   </div>
                 ))}
               </div>
-              <div className="border-t border-border pt-4 space-y-3">
+              <div className="border-t border-border pt-3 sm:pt-4 space-y-2 sm:space-y-3">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted">Subtotal</span>
                   <span className="font-medium text-foreground">£{cartTotal.toFixed(2)}</span>
@@ -159,21 +159,21 @@ export default function CartPage() {
                     {cartTotal > 100 ? <Badge variant="success">Free</Badge> : "£9.99"}
                   </span>
                 </div>
-                <div className="flex items-center justify-between text-lg font-bold pt-3 border-t border-border">
+                <div className="flex items-center justify-between text-base sm:text-lg font-bold pt-2 sm:pt-3 border-t border-border">
                   <span className="text-foreground">Total</span>
                   <span className="text-foreground">
                     £{(cartTotal + (cartTotal > 100 ? 0 : 9.99)).toFixed(2)}
                   </span>
                 </div>
               </div>
-              <Link href="/store/checkout" className="block mt-6">
+              <Link href="/store/checkout" className="block mt-4 sm:mt-6">
                 <Button size="lg" className="w-full gap-2">
-                  <ShoppingCart className="h-5 w-5" />
+                  <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5" />
                   Proceed to Checkout
                 </Button>
               </Link>
               <Link href="/store">
-                <Button variant="ghost" className="w-full mt-3">
+                <Button variant="ghost" className="w-full mt-2 sm:mt-3">
                   <ArrowLeft className="h-4 w-4" />
                   Continue Shopping
                 </Button>

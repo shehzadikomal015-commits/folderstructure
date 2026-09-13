@@ -20,6 +20,17 @@ export const dynamic = "force-dynamic";
 export default async function DashboardOrdersPage() {
   const supabase = await createServerClient();
 
+  if (!supabase) {
+    return (
+      <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8 p-6">
+        <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-6 text-center">
+          <h2 className="text-xl font-bold text-yellow-800 mb-2">Supabase Not Configured</h2>
+          <p className="text-yellow-700">Please configure your Supabase environment variables to view orders.</p>
+        </div>
+      </div>
+    );
+  }
+
   const {
     data: { user },
     error: authError,
@@ -29,14 +40,25 @@ export default async function DashboardOrdersPage() {
     redirect("/");
   }
 
-  const { data: orders, error: ordersError } = await supabase
-    .rpc("get_all_orders");
+  let allOrders = [];
+  try {
+    const { data: orders, error: ordersError } = await supabase
+      .rpc("get_all_orders");
 
-  if (ordersError) {
-    console.error("Error fetching orders:", ordersError);
+    if (ordersError) {
+      console.error("RPC get_all_orders failed, falling back to direct query:", ordersError);
+      const { data: fallbackOrders } = await supabase
+        .from("orders")
+        .select("*")
+        .order("created_at", { ascending: false });
+      allOrders = fallbackOrders || [];
+    } else {
+      allOrders = orders || [];
+    }
+  } catch (err) {
+    console.error("Unexpected error fetching orders:", err);
+    allOrders = [];
   }
-
-  const allOrders = orders || [];
 
   const kpiStats = [
     {
@@ -91,7 +113,7 @@ export default async function DashboardOrdersPage() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="max-w-7xl mx-auto space-y-8"
+      className="max-w-7xl mx-auto space-y-6 sm:space-y-8"
     >
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -100,14 +122,14 @@ export default async function DashboardOrdersPage() {
         className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
       >
         <div>
-          <h1 className="text-3xl font-bold text-foreground tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
             Orders
           </h1>
-          <p className="text-muted mt-1">
+          <p className="text-sm text-muted mt-1">
             Manage and track all customer orders in one place.
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <Button variant="outline" size="sm">
             <SlidersHorizontal className="h-4 w-4" />
             Filters
@@ -127,7 +149,7 @@ export default async function DashboardOrdersPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6"
       >
         {kpiStats.map((stat) => (
           <motion.div
@@ -135,14 +157,14 @@ export default async function DashboardOrdersPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
-            className="bg-white rounded-2xl border border-border p-6"
+            className="bg-white rounded-2xl border border-border p-4 sm:p-6"
           >
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-muted">{stat.title}</p>
-              <stat.icon className="h-5 w-5 text-muted" />
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
+              <p className="text-xs sm:text-sm font-medium text-muted">{stat.title}</p>
+              <stat.icon className="h-4 w-4 sm:h-5 sm:w-5 text-muted" />
             </div>
-            <p className="text-3xl font-bold text-foreground">{stat.value}</p>
-            <p className="text-sm text-muted mt-1">
+            <p className="text-2xl sm:text-3xl font-bold text-foreground">{stat.value}</p>
+            <p className="text-xs sm:text-sm text-muted mt-1">
               <span className={stat.growth > 0 ? "text-success" : "text-danger"}>
                 {stat.growth > 0 ? "+" : ""}{stat.growth}%
               </span>{" "}
@@ -156,14 +178,14 @@ export default async function DashboardOrdersPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="bg-white rounded-2xl border border-border p-6"
+        className="bg-white rounded-2xl border border-border p-4 sm:p-6"
       >
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 sm:mb-6">
           <div>
-            <h2 className="text-lg font-bold text-foreground">All Orders</h2>
-            <p className="text-sm text-muted">A list of all orders in your store</p>
+            <h2 className="text-base sm:text-lg font-bold text-foreground">All Orders</h2>
+            <p className="text-xs sm:text-sm text-muted">A list of all orders in your store</p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted" />
               <input
@@ -189,22 +211,22 @@ export default async function DashboardOrdersPage() {
           <table className="w-full">
             <thead>
               <tr className="bg-gray-50/80">
-                <th className="text-left text-xs font-medium text-muted uppercase tracking-wider px-6 py-4">
+                <th className="text-left text-xs font-medium text-muted uppercase tracking-wider px-4 sm:px-6 py-3 sm:py-4">
                   Order ID
                 </th>
-                <th className="text-left text-xs font-medium text-muted uppercase tracking-wider px-6 py-4">
+                <th className="text-left text-xs font-medium text-muted uppercase tracking-wider px-4 sm:px-6 py-3 sm:py-4">
                   Customer
                 </th>
-                <th className="text-left text-xs font-medium text-muted uppercase tracking-wider px-6 py-4">
+                <th className="text-left text-xs font-medium text-muted uppercase tracking-wider px-4 sm:px-6 py-3 sm:py-4">
                   Date
                 </th>
-                <th className="text-left text-xs font-medium text-muted uppercase tracking-wider px-6 py-4">
+                <th className="text-left text-xs font-medium text-muted uppercase tracking-wider px-4 sm:px-6 py-3 sm:py-4">
                   Total
                 </th>
-                <th className="text-left text-xs font-medium text-muted uppercase tracking-wider px-6 py-4">
+                <th className="text-left text-xs font-medium text-muted uppercase tracking-wider px-4 sm:px-6 py-3 sm:py-4">
                   Status
                 </th>
-                <th className="text-left text-xs font-medium text-muted uppercase tracking-wider px-6 py-4">
+                <th className="text-left text-xs font-medium text-muted uppercase tracking-wider px-4 sm:px-6 py-3 sm:py-4">
                   Actions
                 </th>
               </tr>
@@ -219,10 +241,10 @@ export default async function DashboardOrdersPage() {
                     transition={{ duration: 0.3, delay: idx * 0.05 }}
                     className="hover:bg-gray-50 transition-colors duration-200"
                   >
-                    <td className="px-6 py-4 text-sm font-medium text-foreground">
+                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm font-medium text-foreground">
                       {order.id.slice(0, 8).toUpperCase()}
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 sm:px-6 py-3 sm:py-4">
                       <div>
                         <p className="text-sm font-medium text-foreground">
                           {order.shipping_name}
@@ -230,18 +252,18 @@ export default async function DashboardOrdersPage() {
                         <p className="text-xs text-muted">{order.shipping_email}</p>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-muted">
+                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm text-muted">
                       {new Date(order.created_at).toLocaleDateString()}
                     </td>
-                    <td className="px-6 py-4 text-sm font-medium text-foreground">
+                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm font-medium text-foreground">
                       £{Number(order.total_amount).toFixed(2)}
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 sm:px-6 py-3 sm:py-4">
                       {getStatusBadge(order.status)}
                     </td>
-                    <td className="px-6 py-4">
-                      <button className="p-2 rounded-lg hover:bg-gray-100 text-muted hover:text-foreground transition-colors">
-                        <MoreVertical className="h-4 w-4" />
+                    <td className="px-4 sm:px-6 py-3 sm:py-4">
+                      <button className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 text-muted hover:text-foreground transition-colors">
+                        <MoreVertical className="h-3 w-3 sm:h-4 sm:w-4" />
                       </button>
                     </td>
                   </motion.tr>
@@ -249,14 +271,14 @@ export default async function DashboardOrdersPage() {
               ) : (
                 <tr>
                   <td colSpan={6}>
-                    <div className="flex flex-col items-center justify-center py-16 px-4">
-                      <div className="h-16 w-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
-                        <Package className="h-8 w-8 text-muted" />
+                    <div className="flex flex-col items-center justify-center py-12 sm:py-16 px-4">
+                      <div className="h-14 w-14 sm:h-16 sm:w-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+                        <Package className="h-7 w-7 sm:h-8 sm:w-8 text-muted" />
                       </div>
-                      <h3 className="text-lg font-semibold text-foreground mb-1">
+                      <h3 className="text-base sm:text-lg font-semibold text-foreground mb-1">
                         No orders found
                       </h3>
-                      <p className="text-sm text-muted mb-6 max-w-sm text-center">
+                      <p className="text-xs sm:text-sm text-muted mb-5 sm:mb-6 max-w-sm text-center">
                         We could not find any orders matching your search criteria. Try adjusting your filters.
                       </p>
                     </div>

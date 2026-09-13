@@ -20,6 +20,7 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { Logo } from "@/components/landing/Logo";
+import { fadeInUp, springTransition, smoothTransition } from "@/lib/motionVariants";
 
 const menuItems = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -42,8 +43,8 @@ const itemVariants = {
     x: 0,
     transition: {
       delay: i * 0.05,
-      duration: 0.3,
-      ease: "easeOut",
+      duration: 0.4,
+      ease: [0.34, 1.56, 0.64, 1],
     },
   }),
 };
@@ -56,9 +57,9 @@ export function Sidebar() {
     <motion.aside
       initial={{ x: -100, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
+      transition={springTransition}
       className={cn(
-        "fixed left-0 top-0 h-screen bg-white border-r border-border z-30 transition-all duration-300",
+        "fixed left-0 top-0 h-screen bg-white border-r border-border z-30",
         collapsed ? "w-16" : "w-64"
       )}
     >
@@ -76,6 +77,8 @@ export function Sidebar() {
         <motion.button
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
+          animate={{ rotate: collapsed ? 180 : 0 }}
+          transition={springTransition}
           onClick={() => setCollapsed(!collapsed)}
           className={cn(
             "p-1.5 rounded-lg hover:bg-gray-100 text-muted transition-colors",
@@ -95,14 +98,14 @@ export function Sidebar() {
             <motion.div
               key={item.name}
               custom={idx}
+              variants={itemVariants}
               initial="hidden"
               animate="show"
-              variants={itemVariants}
             >
               <Link
                 href={item.href}
                 className={cn(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200",
+                  "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 relative",
                   isActive
                     ? "bg-primary text-white shadow-sm shadow-primary/25"
                     : "text-muted hover:text-foreground hover:bg-gray-50"

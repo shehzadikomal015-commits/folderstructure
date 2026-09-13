@@ -109,11 +109,11 @@ export default function CheckoutPage() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center max-w-md"
         >
-          <div className="h-20 w-20 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-6">
-            <Truck className="h-10 w-10 text-muted" />
+          <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-5 sm:mb-6">
+            <Truck className="h-8 w-8 sm:h-10 sm:w-10 text-muted" />
           </div>
-          <h1 className="text-2xl font-bold text-foreground mb-2">Please log in</h1>
-          <p className="text-muted mb-8">You need to be logged in to checkout.</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground mb-2">Please log in</h1>
+          <p className="text-sm text-muted mb-6 sm:mb-8">You need to be logged in to checkout.</p>
           <Button size="lg" className="w-full" onClick={() => router.push("/login")}>
             Log In
           </Button>
@@ -130,11 +130,11 @@ export default function CheckoutPage() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center max-w-md"
         >
-          <div className="h-20 w-20 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-6">
-            <Truck className="h-10 w-10 text-muted" />
+          <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-5 sm:mb-6">
+            <Truck className="h-8 w-8 sm:h-10 sm:w-10 text-muted" />
           </div>
-          <h1 className="text-2xl font-bold text-foreground mb-2">Your cart is empty</h1>
-          <p className="text-muted mb-8">Add some products to your cart before checking out.</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground mb-2">Your cart is empty</h1>
+          <p className="text-sm text-muted mb-6 sm:mb-8">Add some products to your cart before checking out.</p>
           <Link href="/store">
             <Button size="lg">Continue Shopping</Button>
           </Link>
@@ -149,22 +149,22 @@ export default function CheckoutPage() {
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="text-center max-w-md bg-white rounded-2xl border border-border p-8 shadow-sm"
+          className="text-center max-w-md bg-white rounded-2xl border border-border p-6 sm:p-8 shadow-sm"
         >
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ type: "spring", stiffness: 200, damping: 15 }}
-            className="h-16 w-16 rounded-full bg-success-light flex items-center justify-center mx-auto mb-6"
+            className="h-14 w-14 sm:h-16 sm:w-16 rounded-full bg-success-light flex items-center justify-center mx-auto mb-5 sm:mb-6"
           >
-            <CheckCircle className="h-8 w-8 text-success" />
+            <CheckCircle className="h-7 w-7 sm:h-8 sm:w-8 text-success" />
           </motion.div>
-          <h1 className="text-2xl font-bold text-foreground mb-2">Order Confirmed</h1>
-          <p className="text-muted mb-8">
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground mb-2">Order Confirmed</h1>
+          <p className="text-sm text-muted mb-6 sm:mb-8">
             Thank you for your purchase! Your order has been placed successfully.
             You will receive a confirmation email shortly.
           </p>
-          <div className="bg-gray-50 rounded-xl p-4 mb-8">
+          <div className="bg-gray-50 rounded-xl p-4 mb-6 sm:mb-8">
             <p className="text-sm text-muted mb-1">Order Number</p>
             <p className="text-lg font-bold text-foreground">
               {orderNumber}

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown } from "lucide-react";
+import { container, item, fadeInUp, smoothTransition } from "@/lib/motionVariants";
 
 const faqs = [
   {
@@ -37,21 +38,6 @@ const faqs = [
   },
 ];
 
-const container = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-    },
-  },
-};
-
-const item = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } },
-};
-
 export function FAQ() {
   const [openIndex, setOpenIndex] = useState(null);
 
@@ -60,26 +46,26 @@ export function FAQ() {
   }
 
   return (
-    <section id="faq" className="py-24 bg-background relative overflow-hidden">
+    <section id="faq" className="py-20 sm:py-24 bg-gradient-to-b from-background via-gray-50 to-background relative overflow-hidden">
       <div className="absolute inset-0 -z-10">
         <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[100px]" />
         <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-secondary/5 rounded-full blur-[100px]" />
       </div>
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.7 }}
+          variants={fadeInUp}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: "-50px" }}
           className="text-center mb-16"
         >
           <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-sm font-semibold text-primary-light mb-6">
             FAQ
           </span>
-          <h2 className="text-4xl sm:text-5xl font-extrabold text-foreground mb-6 tracking-tight">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-foreground mb-6 tracking-tight">
             Frequently Asked <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Questions</span>
           </h2>
-          <p className="text-lg text-muted leading-relaxed">
+          <p className="text-base sm:text-lg text-muted leading-relaxed">
             Everything you need to know about RevenueAI.
           </p>
         </motion.div>
@@ -88,25 +74,25 @@ export function FAQ() {
           variants={container}
           initial="hidden"
           whileInView="show"
-          viewport={{ once: true, margin: "-100px" }}
+          viewport={{ once: true, margin: "-50px" }}
           className="space-y-4"
         >
           {faqs.map((faq, idx) => (
             <motion.div
               key={idx}
               variants={item}
-              className="bg-white/50 rounded-2xl border border-gray-200 overflow-hidden hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300"
+              className="bg-white/60 rounded-2xl border border-gray-200 overflow-hidden hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300"
             >
               <button
                 onClick={() => toggle(idx)}
-                className="w-full flex items-center justify-between p-6 cursor-pointer text-left"
+                className="w-full flex items-center justify-between p-5 sm:p-6 cursor-pointer text-left"
               >
                 <span className="font-semibold text-foreground text-base pr-4">
                   {faq.question}
                 </span>
                 <motion.span
                   animate={{ rotate: openIndex === idx ? 180 : 0 }}
-                  transition={{ duration: 0.2 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
                   className="relative flex-shrink-0 ml-2"
                 >
                   <ChevronDown className="h-5 w-5 text-muted" />
@@ -118,10 +104,10 @@ export function FAQ() {
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: "auto", opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                    transition={{ type: "spring", stiffness: 300, damping: 24 }}
                     className="overflow-hidden"
                   >
-                    <div className="px-6 pb-6">
+                    <div className="px-5 sm:px-6 pb-5 sm:pb-6">
                       <p className="text-sm text-muted leading-relaxed">
                         {faq.answer}
                       </p>

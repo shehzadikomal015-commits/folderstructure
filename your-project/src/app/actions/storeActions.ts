@@ -19,7 +19,7 @@ export async function getMyStore() {
     .from("stores")
     .select("*")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
 
   if (error) {
     return { store: null, error: null };
@@ -91,7 +91,7 @@ export async function updateStore(formData: FormData) {
     .from("stores")
     .select("*")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
 
   if (fetchError || !existingStore) {
     return { success: false, error: "Store not found." };

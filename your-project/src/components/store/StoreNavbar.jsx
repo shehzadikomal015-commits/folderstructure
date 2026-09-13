@@ -6,11 +6,12 @@ import { ShoppingCart, User, Store } from "lucide-react";
 import { motion } from "framer-motion";
 import { useCart } from "@/components/store/CartProvider";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { hoverLift, smoothTransition } from "@/lib/motionVariants";
 
 export function StoreNavbar() {
   const pathname = usePathname();
   const { cartCount } = useCart();
-  const { user } = useAuth();
+  const { user, hydrated } = useAuth();
 
   const isActive = (href) => pathname === href || pathname.startsWith(href);
 
@@ -24,47 +25,63 @@ export function StoreNavbar() {
           </Link>
 
           <nav className="hidden md:flex items-center gap-1">
-            <Link
-              href="/store"
-              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-                isActive("/store")
-                  ? "bg-primary/10 text-primary"
-                  : "text-muted hover:text-foreground hover:bg-gray-50"
-              }`}
-            >
-              Products
-            </Link>
-            <Link
-              href="/cart"
-              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all relative ${
-                isActive("/cart")
-                  ? "bg-primary/10 text-primary"
-                  : "text-muted hover:text-foreground hover:bg-gray-50"
-              }`}
-            >
-              Cart
-              {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center">
-                  {cartCount}
-                </span>
-              )}
-            </Link>
-            {user && (
+            {[
+              { href: "/store", label: "Products" },
+              { href: "/cart", label: "Cart" },
+            ].map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`relative px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                  isActive(link.href)
+                    ? "bg-primary/10 text-primary"
+                    : "text-muted hover:text-foreground hover:bg-gray-50"
+                }`}
+              >
+                {link.label}
+                {isActive(link.href) && (
+                  <motion.div
+                    layoutId="storeNavIndicator"
+                    className="absolute inset-0 rounded-xl bg-primary/10"
+                    transition={{ type: "spring", stiffness: 300, damping: 24 }}
+                  />
+                )}
+                {link.href === "/cart" && cartCount > 0 && (
+                  <motion.span
+                    key={cartCount}
+                    initial={{ scale: 0, y: -10 }}
+                    animate={{ scale: 1, y: 0 }}
+                    transition={{ type: "spring", stiffness: 500, damping: 20 }}
+                    className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center"
+                  >
+                    {cartCount}
+                  </motion.span>
+                )}
+              </Link>
+            ))}
+            {hydrated && user && (
               <Link
                 href="/orders"
-                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                className={`relative px-4 py-2 rounded-xl text-sm font-medium transition-all ${
                   isActive("/orders")
                     ? "bg-primary/10 text-primary"
                     : "text-muted hover:text-foreground hover:bg-gray-50"
                 }`}
               >
                 My Orders
+                {isActive("/orders") && (
+                  <motion.div
+                    layoutId="storeNavIndicator"
+                    className="absolute inset-0 rounded-xl bg-primary/10"
+                    transition={{ type: "spring", stiffness: 300, damping: 24 }}
+                  />
+                )}
               </Link>
             )}
           </nav>
 
           <div className="flex items-center gap-3">
-            {user ? (
+            {hydrated && user ? (
               <Link
                 href="/dashboard"
                 className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-muted hover:text-foreground hover:bg-gray-50 transition-all"
@@ -86,9 +103,15 @@ export function StoreNavbar() {
             >
               <ShoppingCart className="h-5 w-5" />
               {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center">
+                <motion.span
+                  key={cartCount}
+                  initial={{ scale: 0, y: -10 }}
+                  animate={{ scale: 1, y: 0 }}
+                  transition={{ type: "spring", stiffness: 500, damping: 20 }}
+                  className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center"
+                >
                   {cartCount}
-                </span>
+                </motion.span>
               )}
             </Link>
           </div>

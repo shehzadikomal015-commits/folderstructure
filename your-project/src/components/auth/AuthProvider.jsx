@@ -4,94 +4,89 @@ import {
   createContext,
   useContext,
   useState,
+  useCallback,
   useEffect,
 } from "react";
 
-import { supabase } from "@/lib/Supabase/client";
+import { localStore, seedIfEmpty } from "@/lib/localStore";
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  async function getUser() {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    setUser(user);
-  }
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
+    seedIfEmpty();
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    getUser();
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
+    setUser(localStore.getUser());
+    setHydrated(true);
   }, []);
 
-  async function login(email, password) {
-    setLoading(true);
+  useEffect(() => {
+    const handler = () => {
+      seedIfEmpty();
+      setUser(localStore.getUser());
+    };
+    window.addEventListener("storage", handler);
+    return () => window.removeEventListener("storage", handler);
+  }, []);
 
-    const { data, error } = await supabase.auth.signInWithPassword({
+  const login = useCallback(async (email, password) => {
+    seedIfEmpty();
+    const users = localStore.getUsers();
+    const found = users.find(
+      (u) => u.email === email && u.password === password
+    );
+    if (!found) {
+      throw new Error("Invalid email or password");
+    }
+    const sessionUser = {
+      id: found.id,
+      email: found.email,
+      user_metadata: { name: found.name },
+    };
+    localStore.setUser(sessionUser);
+    setUser(sessionUser);
+    return sessionUser;
+  }, []);
+
+  const signup = useCallback(async (name, email, password) => {
+    seedIfEmpty();
+    const users = localStore.getUsers();
+    if (users.find((u) => u.email === email)) {
+      throw new Error("An account with this email already exists");
+    }
+    const newUser = {
+      id: `${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`,
+      name,
       email,
       password,
-    });
+      created_at: new Date().toISOString(),
+    };
+    users.push(newUser);
+    localStore.setUsers(users);
+    const sessionUser = {
+      id: newUser.id,
+      email: newUser.email,
+      user_metadata: { name: newUser.name },
+    };
+    localStore.setUser(sessionUser);
+    setUser(sessionUser);
+    return sessionUser;
+  }, []);
 
-    setLoading(false);
-
-    if (error) {
-      throw new Error(error.message);
-    }
-
-    setUser(data.user);
-
-    return data.user;
-  }
-
-  async function signup(name, email, password) {
-    setLoading(true);
-
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          name: name,
-        },
-      },
-    });
-
-    if (error) {
-      setLoading(false);
-      throw new Error(error.message);
-    }
-
-    setUser(data.user);
-
-    setLoading(false);
-
-    return data.user;
-  }
-
-  async function logout() {
-    await supabase.auth.signOut();
+  const logout = useCallback(async () => {
+    localStore.clearUser();
     setUser(null);
-  }
+  }, []);
 
   return (
     <AuthContext.Provider
       value={{
         user,
-        loading,
+        loading: false,
+        hydrated,
         login,
         signup,
         logout,
@@ -104,10 +99,8 @@ export function AuthProvider({ children }) {
 
 export function useAuth() {
   const context = useContext(AuthContext);
-
   if (!context) {
     throw new Error("useAuth must be used within an AuthProvider");
   }
-
   return context;
 }

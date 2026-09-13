@@ -1,12 +1,27 @@
 "use client";
 
 import { Lightbulb, ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/Button";
+import { fadeInUp, hoverLift, smoothTransition, springTransition } from "@/lib/motionVariants";
 
 export function AIRecommendationCard({ recommendation }) {
   return (
-    <div className="p-6 rounded-3xl bg-gradient-to-br from-primary/5 via-primary/3 to-secondary/5 border border-primary/10 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300">
-      <div className="flex items-start gap-4">
+    <motion.div
+      variants={fadeInUp}
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true, margin: "-50px" }}
+      whileHover={{ y: -4, scale: 1.01 }}
+      transition={smoothTransition}
+      className="p-6 rounded-3xl bg-gradient-to-br from-primary/5 via-primary/3 to-secondary/5 border border-primary/10 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 relative overflow-hidden"
+    >
+      <motion.div
+        animate={{ opacity: [0.3, 0.6, 0.3] }}
+        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-secondary/10 pointer-events-none"
+      />
+      <div className="flex items-start gap-4 relative">
         <div className="p-3 rounded-2xl bg-gradient-to-br from-primary/10 to-secondary/10 flex-shrink-0">
           <Lightbulb className="h-6 w-6 text-primary" />
         </div>
@@ -49,6 +64,6 @@ export function AIRecommendationCard({ recommendation }) {
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
